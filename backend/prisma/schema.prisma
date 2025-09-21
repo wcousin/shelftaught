@@ -98,8 +98,7 @@ model Curriculum {
   weaknesses String[] // PostgreSQL array
   bestFor String[] // PostgreSQL array
   
-  // Full review text
-  fullReview String? // Optional full review text
+
   
   // Availability
   availabilityInPrint Boolean @default(true)

@@ -94,8 +94,7 @@ model Curriculum {
   weaknesses String // JSON string for SQLite
   bestFor String // JSON string for SQLite
   
-  // Full review text
-  fullReview String? // Optional full review text
+
   
   // Availability
   availabilityInPrint Int @default(1) // SQLite uses Int for Boolean (1=true, 0=false)
