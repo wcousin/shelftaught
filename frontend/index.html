@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#2563eb" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Shelf Taught" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png" />
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Performance optimizations -->
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    
+    <!-- Default SEO Meta Tags -->
+    <title>Shelf Taught - Homeschool Curriculum Reviews & Ratings</title>
+    <meta name="description" content="Find the perfect homeschool curriculum with detailed reviews and ratings. Compare teaching approaches, subjects, costs, and more to make informed educational decisions." />
+    <meta name="keywords" content="homeschool, curriculum, reviews, ratings, education, teaching, learning, homeschooling" />
+    <meta name="author" content="Shelf Taught" />
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Shelf Taught - Homeschool Curriculum Reviews" />
+    <meta property="og:description" content="Find the perfect homeschool curriculum with detailed reviews and ratings." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://shelftaught.com" />
+    <meta property="og:image" content="https://shelftaught.com/og-image.jpg" />
+    <meta property="og:site_name" content="Shelf Taught" />
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Shelf Taught - Homeschool Curriculum Reviews" />
+    <meta name="twitter:description" content="Find the perfect homeschool curriculum with detailed reviews and ratings." />
+    <meta name="twitter:image" content="https://shelftaught.com/twitter-image.jpg" />
+    
+    <!-- Additional SEO Meta Tags -->
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow" />
+    <link rel="canonical" href="https://shelftaught.com" />
+    
+    <!-- Preconnect to external domains for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registered: ', registration);
+            })
+            .catch((registrationError) => {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      }
+    </script>
+  </body>
+</html>

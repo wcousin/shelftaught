@@ -1,0 +1,143 @@
+// Local development schema using SQLite
+// This is used when DATABASE_URL points to a SQLite file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  firstName String
+  lastName  String
+  password  String
+  role      String   @default("USER") // SQLite doesn't support enums, use string
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  savedCurricula SavedCurriculum[]
+
+  @@map("users")
+}
+
+model Subject {
+  id          String @id @default(cuid())
+  name        String @unique
+  description String
+  
+  curriculumSubjects CurriculumSubject[]
+
+  @@map("subjects")
+}
+
+model GradeLevel {
+  id       String @id @default(cuid())
+  name     String @unique
+  ageRange String
+  minAge   Int
+  maxAge   Int
+
+  curricula Curriculum[]
+
+  @@map("grade_levels")
+}
+
+model Curriculum {
+  id          String   @id @default(cuid())
+  name        String
+  publisher   String
+  description String
+  imageUrl    String?
+  
+  // Target Age/Grade
+  gradeLevelId String
+  gradeLevel   GradeLevel @relation(fields: [gradeLevelId], references: [id])
+  targetAgeGradeRating Int @default(0) // 1-5 scale
+  
+  // Teaching Approach
+  teachingApproachStyle String
+  teachingApproachDescription String
+  teachingApproachRating Int @default(0)
+  
+  // Subjects Covered
+  subjectComprehensiveness Int @default(0) // 1-5 scale
+  subjectsCoveredRating Int @default(0)
+  
+  // Materials Included
+  materialsComponents String // JSON string for SQLite
+  materialsCompleteness Int @default(0) // 1-5 scale
+  materialsIncludedRating Int @default(0)
+  
+  // Instruction Style
+  instructionStyleType String
+  instructionSupportLevel Int @default(0) // 1-5 scale
+  instructionStyleRating Int @default(0)
+  
+  // Time Commitment
+  timeCommitmentDailyMinutes Int @default(0)
+  timeCommitmentWeeklyHours Float @default(0)
+  timeCommitmentFlexibility Int @default(0) // 1-5 scale
+  timeCommitmentRating Int @default(0)
+  
+  // Cost
+  costPriceRange String // "$", "$", "$$", "$$"
+  costValue Int @default(0) // 1-5 scale
+  costRating Int @default(0)
+  
+  // Additional Information
+  strengths String // JSON string for SQLite
+  weaknesses String // JSON string for SQLite
+  bestFor String // JSON string for SQLite
+  
+  // Full review text
+  fullReview String? // Optional full review text
+  
+  // Availability
+  availabilityInPrint Int @default(1) // SQLite uses Int for Boolean (1=true, 0=false)
+  availabilityDigital Int @default(0)
+  availabilityUsedMarket Int @default(0)
+  availabilityRating Int @default(0)
+  
+  // Overall metrics
+  overallRating Float @default(0) // Calculated average
+  reviewCount Int @default(1)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  curriculumSubjects CurriculumSubject[]
+  savedBy SavedCurriculum[]
+
+  @@map("curricula")
+}
+
+model CurriculumSubject {
+  id           String @id @default(cuid())
+  curriculumId String
+  subjectId    String
+
+  curriculum Curriculum @relation(fields: [curriculumId], references: [id], onDelete: Cascade)
+  subject    Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([curriculumId, subjectId])
+  @@map("curriculum_subjects")
+}
+
+model SavedCurriculum {
+  id           String  @id @default(cuid())
+  userId       String
+  curriculumId String
+  personalNotes String?
+  savedAt      DateTime @default(now())
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  curriculum Curriculum @relation(fields: [curriculumId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, curriculumId])
+  @@map("saved_curricula")
+}
