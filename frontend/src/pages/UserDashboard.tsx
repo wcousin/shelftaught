@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { api } from '../services/api';
 import { SavedCurriculumCard } from '../components/user/SavedCurriculumCard';
 import { AccountSettings } from '../components/user/AccountSettings';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 interface SavedCurriculum {
   id: string;
@@ -35,16 +36,20 @@ const UserDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log('🔍 UserDashboard mounted, user:', user);
     fetchSavedCurricula();
   }, []);
 
   const fetchSavedCurricula = async () => {
     try {
+      console.log('📡 Fetching saved curricula...');
       setIsLoading(true);
       const response = await api.getSavedCurricula();
+      console.log('📊 API response:', response);
+      console.log('📚 Saved curricula data:', response.data.savedCurricula);
       setSavedCurricula(response.data.savedCurricula);
     } catch (error) {
-      console.error('Failed to fetch saved curricula:', error);
+      console.error('❌ Failed to fetch saved curricula:', error);
       setError('Failed to load saved curricula');
     } finally {
       setIsLoading(false);
@@ -70,18 +75,20 @@ const UserDashboard: React.FC = () => {
     { id: 'settings', label: 'Account Settings' },
   ];
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {user?.firstName}!
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Manage your saved curricula and account settings
-          </p>
-        </div>
+  try {
+    return (
+      <ErrorBoundary>
+        <div className="min-h-screen bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900">
+              Welcome back, {user?.firstName || 'User'}!
+            </h1>
+            <p className="text-gray-600 mt-2">
+              Manage your saved curricula and account settings
+            </p>
+          </div>
 
         {/* Tabs */}
         <div className="border-b border-gray-200 mb-8">
@@ -161,10 +168,28 @@ const UserDashboard: React.FC = () => {
           </div>
         )}
 
-        {activeTab === 'settings' && <AccountSettings />}
+          {activeTab === 'settings' && <AccountSettings />}
+          </div>
+        </div>
+      </ErrorBoundary>
+    );
+  } catch (error) {
+    console.error('❌ UserDashboard render error:', error);
+    return (
+      <div className="min-h-screen bg-red-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Dashboard Error</h1>
+          <p className="text-gray-600 mb-4">Something went wrong loading the dashboard.</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Reload Page
+          </button>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 };
 
 export default UserDashboard;
