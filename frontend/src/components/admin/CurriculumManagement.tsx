@@ -39,8 +39,8 @@ const CurriculumManagement: React.FC = () => {
       
       if (response.data.success) {
         console.log('✅ CurriculumManagement - Setting curricula:', response.data.curricula);
-        setCurricula(response.data.curricula);
-        setTotalPages(response.data.pagination.totalPages);
+        setCurricula(response.data.curricula || []);
+        setTotalPages(response.data.pagination?.totalPages || 1);
         setCurrentPage(page);
       } else {
         console.warn('⚠️ CurriculumManagement - API returned success: false');

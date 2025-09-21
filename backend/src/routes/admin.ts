@@ -616,4 +616,189 @@ router.get('/analytics', asyncHandler(async (req: Request, res: Response) => {
   res.success({ analytics }, 'Analytics retrieved successfully');
 }));
 
+/**
+ * GET /api/admin/users
+ * Get users for admin management with pagination and filtering
+ */
+router.get('/users', asyncHandler(async (req: Request, res: Response) => {
+  const prisma = DatabaseService.getInstance();
+  
+  // Parse and validate query parameters
+  const page = Math.max(1, parseInt(req.query.page as string) || 1);
+  const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 10));
+  const skip = (page - 1) * limit;
+  
+  // Build where clause for filtering
+  const where: any = {};
+  
+  // Search functionality
+  if (req.query.search) {
+    const searchTerm = req.query.search as string;
+    where.OR = [
+      { firstName: { contains: searchTerm, mode: 'insensitive' } },
+      { lastName: { contains: searchTerm, mode: 'insensitive' } },
+      { email: { contains: searchTerm, mode: 'insensitive' } }
+    ];
+  }
+  
+  // Role filter
+  if (req.query.role && req.query.role !== 'all') {
+    where.role = req.query.role as string;
+  }
+  
+  // Sorting
+  const sortBy = req.query.sortBy as string || 'createdAt';
+  const sortOrder = req.query.sortOrder as 'asc' | 'desc' || 'desc';
+  
+  const validSortFields = ['firstName', 'lastName', 'email', 'role', 'createdAt'];
+  const orderBy: any = validSortFields.includes(sortBy) 
+    ? { [sortBy]: sortOrder }
+    : { createdAt: 'desc' };
+  
+  // Execute queries
+  const [users, totalCount] = await Promise.all([
+    prisma.user.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy,
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        createdAt: true,
+        _count: {
+          select: {
+            savedCurricula: true
+          }
+        }
+      }
+    }),
+    prisma.user.count({ where })
+  ]);
+  
+  const totalPages = Math.ceil(totalCount / limit);
+  
+  res.success({
+    users,
+    pagination: {
+      currentPage: page,
+      totalPages,
+      totalItems: totalCount,
+      itemsPerPage: limit
+    }
+  });
+}));
+
+/**
+ * PUT /api/admin/users/:id
+ * Update user role
+ */
+router.put('/users/:id', asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { role } = req.body;
+  const prisma = DatabaseService.getInstance();
+  
+  if (!id) {
+    throw new ValidationError('User ID is required');
+  }
+  
+  if (!role || !['USER', 'ADMIN'].includes(role)) {
+    throw new ValidationError('Valid role is required (USER or ADMIN)');
+  }
+  
+  // Check if user exists
+  const existingUser = await prisma.user.findUnique({
+    where: { id }
+  });
+  
+  if (!existingUser) {
+    throw new NotFoundError('User not found');
+  }
+  
+  // Update user role
+  const updatedUser = await prisma.user.update({
+    where: { id },
+    data: { role },
+    select: {
+      id: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+      role: true,
+      createdAt: true
+    }
+  });
+  
+  res.success({ user: updatedUser }, 'User role updated successfully');
+}));
+
+/**
+ * GET /api/admin/moderation
+ * Get content moderation items (placeholder implementation)
+ */
+router.get('/moderation', asyncHandler(async (req: Request, res: Response) => {
+  // This is a placeholder implementation since we don't have a reporting system yet
+  // In a real app, this would fetch reported content, reviews, etc.
+  
+  const mockModerationItems = [
+    {
+      id: '1',
+      type: 'review',
+      content: 'Sample review content that might need moderation',
+      author: {
+        id: '1',
+        name: 'John Doe',
+        email: 'john@example.com'
+      },
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+      reports: [
+        {
+          id: '1',
+          reason: 'Inappropriate content',
+          reportedAt: new Date().toISOString(),
+          reportedBy: 'user123'
+        }
+      ]
+    }
+  ];
+  
+  res.success({
+    items: mockModerationItems,
+    pagination: {
+      currentPage: 1,
+      totalPages: 1,
+      totalItems: mockModerationItems.length,
+      itemsPerPage: 10
+    }
+  });
+}));
+
+/**
+ * PUT /api/admin/moderation/:id
+ * Update moderation item status
+ */
+router.put('/moderation/:id', asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  
+  if (!id) {
+    throw new ValidationError('Item ID is required');
+  }
+  
+  if (!status || !['approved', 'rejected', 'pending'].includes(status)) {
+    throw new ValidationError('Valid status is required (approved, rejected, pending)');
+  }
+  
+  // Placeholder response - in real app would update database
+  res.success({ 
+    id, 
+    status,
+    updatedAt: new Date().toISOString()
+  }, 'Moderation status updated successfully');
+}));
+
 export default router;
