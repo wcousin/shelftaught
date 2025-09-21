@@ -5,7 +5,15 @@ import { mockApiResponses } from './mockData';
 
 // API Configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL || 
-  (import.meta.env.PROD ? 'https://shelftaught-production.up.railway.app/api' : 'http://localhost:3001/api');
+  (window.location.hostname.includes('railway.app') ? 'https://shelftaught-production.up.railway.app/api' : 
+   import.meta.env.PROD ? 'https://shelftaught-production.up.railway.app/api' : 'http://localhost:3001/api');
+
+// Debug logging
+console.log('API Configuration Debug:');
+console.log('- VITE_API_URL:', import.meta.env.VITE_API_URL);
+console.log('- PROD mode:', import.meta.env.PROD);
+console.log('- Hostname:', window.location.hostname);
+console.log('- Final API_BASE_URL:', API_BASE_URL);
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({

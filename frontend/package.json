@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "if [ \"$NODE_ENV\" = \"production\" ]; then npm run start; else vite; fi",
     "build": "tsc -b && vite build",
-    "start": "npm run build && vite preview --host 0.0.0.0",
+    "start": "npm run build && vite preview --host 0.0.0.0 --port $PORT",
     "railway:start": "npm run build && npm run start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
