@@ -189,16 +189,9 @@ export const api = {
   getCategories: () => 
     cachedGet('/categories', undefined, 30 * 60 * 1000), // 30 minutes cache
 
-  // Auth endpoints with mock fallback
+  // Auth endpoints - now working with real backend!
   login: async (credentials: { email: string; password: string }) => {
-    try {
-      return await apiClient.post('/auth/login', credentials);
-    } catch (error) {
-      console.error('Login API failed:', error);
-      // Temporarily disable mock fallback to see real error
-      throw error;
-      // return await mockAuth.login(credentials);
-    }
+    return await apiClient.post('/auth/login', credentials);
   },
   
   register: async (userData: { email: string; password: string; firstName: string; lastName: string }) => {

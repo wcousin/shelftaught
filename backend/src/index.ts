@@ -28,14 +28,7 @@ import sitemapRoutes from './routes/sitemap';
 import healthRoutes from './routes/health';
 
 // Load and validate environment configuration
-console.log('Loading environment configuration...');
-console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('PORT:', process.env.PORT);
-console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
-console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
-
 const config = Environment.getConfig();
-console.log('Environment config loaded successfully');
 
 const app = express();
 
