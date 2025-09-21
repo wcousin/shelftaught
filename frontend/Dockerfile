@@ -33,7 +33,7 @@ RUN echo '#!/bin/sh' > /start.sh && \
     echo 'echo "📁 Dist contents:"' >> /start.sh && \
     echo 'ls -la dist/' >> /start.sh && \
     echo 'echo "🔧 Starting serve on 0.0.0.0:${PORT:-3000}"' >> /start.sh && \
-    echo 'exec serve -s dist -l ${PORT:-3000} -H 0.0.0.0' >> /start.sh && \
+    echo 'exec serve -s dist -l 0.0.0.0:${PORT:-3000}' >> /start.sh && \
     chmod +x /start.sh
 
 # Expose port
