@@ -148,10 +148,10 @@ const startServer = async () => {
     await DatabaseService.connect();
     
     // Start HTTP server
-    app.listen(config.port, () => {
+    app.listen(config.port, '0.0.0.0', () => {
       Logger.info(`🚀 Server running on port ${config.port}`);
-      Logger.info(`📊 Health check available at http://localhost:${config.port}/health`);
-      Logger.info(`🔐 API documentation available at http://localhost:${config.port}/api`);
+      Logger.info(`📊 Health check available at http://0.0.0.0:${config.port}/health`);
+      Logger.info(`🔐 API documentation available at http://0.0.0.0:${config.port}/api`);
       Logger.info(`🌍 Environment: ${config.nodeEnv}`);
     });
   } catch (error) {
