@@ -43,14 +43,8 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Handle preflight OPTIONS requests
-app.options('*', (req, res) => {
-  res.header('Access-Control-Allow-Origin', 'https://frontend-production-aeaaf.up.railway.app');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.sendStatus(200);
-});
+// Handle preflight OPTIONS requests - remove the problematic wildcard
+// The CORS middleware should handle this automatically
 
 // Health check routes
 app.use('/', healthRoutes);
