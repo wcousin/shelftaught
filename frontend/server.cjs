@@ -16,9 +16,13 @@ console.log('🔍 NODE_ENV:', process.env.NODE_ENV);
 if (!fs.existsSync(distPath)) {
   console.error('❌ Dist directory does not exist:', distPath);
   console.log('📂 Current directory contents:');
-  fs.readdirSync(__dirname).forEach(file => {
-    console.log('  -', file);
-  });
+  try {
+    fs.readdirSync(__dirname).forEach(file => {
+      console.log('  -', file);
+    });
+  } catch (e) {
+    console.error('❌ Cannot read directory:', e.message);
+  }
   process.exit(1);
 }
 
@@ -27,9 +31,13 @@ const indexPath = path.join(distPath, 'index.html');
 if (!fs.existsSync(indexPath)) {
   console.error('❌ index.html does not exist:', indexPath);
   console.log('📂 Dist directory contents:');
-  fs.readdirSync(distPath).forEach(file => {
-    console.log('  -', file);
-  });
+  try {
+    fs.readdirSync(distPath).forEach(file => {
+      console.log('  -', file);
+    });
+  } catch (e) {
+    console.error('❌ Cannot read dist directory:', e.message);
+  }
   process.exit(1);
 }
 
@@ -40,19 +48,25 @@ app.get('/health', (req, res) => {
   res.json({ 
     status: 'healthy', 
     timestamp: new Date().toISOString(),
-    port: port 
+    port: port,
+    distPath: distPath,
+    indexExists: fs.existsSync(indexPath)
   });
 });
 
-// Serve static files from the dist directory
-app.use(express.static(path.join(__dirname, 'dist'), {
-  maxAge: '1d', // Cache static assets for 1 day
-  etag: true
+// Serve static files from the dist directory with proper headers
+app.use(express.static(distPath, {
+  maxAge: '1d',
+  etag: true,
+  setHeaders: (res, path) => {
+    if (path.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  }
 }));
 
 // Handle client-side routing - serve index.html for all routes
 app.get('*', (req, res) => {
-  const indexPath = path.join(__dirname, 'dist', 'index.html');
   console.log('📄 Serving index.html for:', req.path);
   res.sendFile(indexPath, (err) => {
     if (err) {
@@ -68,11 +82,33 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal Server Error' });
 });
 
-app.listen(port, '0.0.0.0', (err) => {
-  if (err) {
-    console.error('❌ Failed to start server:', err);
-    process.exit(1);
-  }
+// Start server with better error handling
+const server = app.listen(port, '0.0.0.0', () => {
   console.log(`✅ Frontend server running on http://0.0.0.0:${port}`);
   console.log(`🔗 Health check: http://0.0.0.0:${port}/health`);
+});
+
+server.on('error', (err) => {
+  console.error('❌ Server error:', err);
+  if (err.code === 'EADDRINUSE') {
+    console.error(`❌ Port ${port} is already in use`);
+  }
+  process.exit(1);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('🔄 SIGTERM received, shutting down gracefully');
+  server.close(() => {
+    console.log('✅ Server closed');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('🔄 SIGINT received, shutting down gracefully');
+  server.close(() => {
+    console.log('✅ Server closed');
+    process.exit(0);
+  });
 });

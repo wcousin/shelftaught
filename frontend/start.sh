@@ -5,19 +5,16 @@ echo "🔧 Starting deployment script..."
 # Set NODE_ENV if not set
 export NODE_ENV=${NODE_ENV:-production}
 echo "🔍 NODE_ENV: $NODE_ENV"
+echo "🌐 PORT: ${PORT:-3000}"
 
-# Check if dist directory exists, if not build it
+# Always build to ensure we have the latest code
+echo "📦 Building frontend..."
+npm run build
+
+# Check if build was successful
 if [ ! -d "dist" ]; then
-    echo "📦 Dist directory not found, building..."
-    npm run build
-    
-    # Check if build was successful
-    if [ ! -d "dist" ]; then
-        echo "❌ Build failed - dist directory still doesn't exist"
-        exit 1
-    fi
-else
-    echo "✅ Dist directory found"
+    echo "❌ Build failed - dist directory doesn't exist"
+    exit 1
 fi
 
 # List contents for debugging
@@ -33,6 +30,8 @@ if [ ! -f "dist/index.html" ]; then
     exit 1
 fi
 
+echo "✅ Build successful, starting server..."
+
 # Start the server
-echo "🚀 Starting server..."
-node server.cjs
+echo "🚀 Starting server on port ${PORT:-3000}..."
+exec node server.cjs

@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "if [ \"$NODE_ENV\" = \"production\" ]; then npm run start; else vite; fi",
+    "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
     "start": "node start.js",
-    "railway:start": "npx serve -s dist -l $PORT",
+    "railway:start": "npx serve -s dist -l ${PORT:-3000}",
     "railway:start:express": "node server.cjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
