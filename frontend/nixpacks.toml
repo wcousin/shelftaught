@@ -5,7 +5,7 @@ nixPkgs = ['nodejs']
 cmds = ['npm ci', 'npm run build']
 
 [phases.start]
-cmd = 'npx serve -s dist -p $PORT'
+cmd = 'node server.cjs'
 
 [variables]
 NODE_ENV = 'production'
