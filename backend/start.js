@@ -33,6 +33,15 @@ if (!fs.existsSync(distPath)) {
         // Run database migrations
         console.log('🗄️ Running database migrations...');
         execSync('npx prisma migrate deploy', { stdio: 'inherit' });
+        
+        // Seed the database
+        console.log('🌱 Seeding database...');
+        try {
+            execSync('npx prisma db seed', { stdio: 'inherit' });
+            console.log('✅ Database seeded successfully');
+        } catch (seedError) {
+            console.warn('⚠️ Database seeding failed (might already be seeded):', seedError.message);
+        }
     } catch (error) {
         console.error('❌ Build process failed:', error.message);
         process.exit(1);
