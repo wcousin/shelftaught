@@ -22,7 +22,7 @@ const CurriculumManagement: React.FC = () => {
   const fetchCurricula = async (page = 1, search = '') => {
     try {
       setLoading(true);
-      const response = await api.get('/curricula', {
+      const response = await api.get('/admin/curricula', {
         params: {
           page,
           limit: 10,
@@ -31,8 +31,8 @@ const CurriculumManagement: React.FC = () => {
       });
       
       if (response.data.success) {
-        setCurricula(response.data.data.curricula);
-        setTotalPages(response.data.data.pagination.totalPages);
+        setCurricula(response.data.curricula);
+        setTotalPages(response.data.pagination.totalPages);
         setCurrentPage(page);
       }
     } catch (err: any) {

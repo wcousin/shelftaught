@@ -12,6 +12,107 @@ router.use(authenticate);
 router.use(requireAdmin);
 
 /**
+ * GET /api/admin/curricula
+ * Get curricula for admin management with additional metadata
+ */
+router.get('/curricula', asyncHandler(async (req: Request, res: Response) => {
+  const prisma = DatabaseService.getInstance();
+  
+  // Parse and validate query parameters
+  const page = Math.max(1, parseInt(req.query.page as string) || 1);
+  const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 10));
+  const skip = (page - 1) * limit;
+  
+  // Build where clause for filtering
+  const where: any = {};
+  
+  // Search functionality
+  if (req.query.search) {
+    const searchTerm = req.query.search as string;
+    where.OR = [
+      { name: { contains: searchTerm, mode: 'insensitive' } },
+      { publisher: { contains: searchTerm, mode: 'insensitive' } },
+      { description: { contains: searchTerm, mode: 'insensitive' } }
+    ];
+  }
+  
+  // Sorting
+  const sortBy = req.query.sortBy as string || 'createdAt';
+  const sortOrder = req.query.sortOrder as 'asc' | 'desc' || 'desc';
+  
+  const validSortFields = ['name', 'publisher', 'overallRating', 'createdAt'];
+  const orderBy: any = validSortFields.includes(sortBy) 
+    ? { [sortBy]: sortOrder }
+    : { createdAt: 'desc' };
+  
+  // Execute queries
+  const [curricula, totalCount] = await Promise.all([
+    prisma.curriculum.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy,
+      include: {
+        gradeLevel: {
+          select: {
+            id: true,
+            name: true,
+            ageRange: true
+          }
+        },
+        curriculumSubjects: {
+          include: {
+            subject: {
+              select: {
+                id: true,
+                name: true
+              }
+            }
+          }
+        },
+        _count: {
+          select: {
+            savedBy: true
+          }
+        }
+      }
+    }),
+    prisma.curriculum.count({ where })
+  ]);
+  
+  // Transform data for admin response
+  const transformedCurricula = curricula.map((curriculum: any) => ({
+    id: curriculum.id,
+    name: curriculum.name,
+    publisher: curriculum.publisher,
+    description: curriculum.description,
+    imageUrl: curriculum.imageUrl,
+    gradeLevel: curriculum.gradeLevel,
+    subjects: curriculum.curriculumSubjects?.map((cs: any) => cs.subject) || [],
+    teachingApproachStyle: curriculum.teachingApproachStyle,
+    costPriceRange: curriculum.costPriceRange,
+    timeCommitmentDailyMinutes: curriculum.timeCommitmentDailyMinutes,
+    overallRating: curriculum.overallRating,
+    reviewCount: curriculum.reviewCount,
+    createdAt: curriculum.createdAt,
+    updatedAt: curriculum.updatedAt,
+    _count: curriculum._count
+  }));
+  
+  const totalPages = Math.ceil(totalCount / limit);
+  
+  res.success({
+    curricula: transformedCurricula,
+    pagination: {
+      currentPage: page,
+      totalPages,
+      totalItems: totalCount,
+      itemsPerPage: limit
+    }
+  });
+}));
+
+/**
  * POST /api/admin/curricula
  * Create new curriculum review
  */
