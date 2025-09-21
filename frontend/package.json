@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "if [ \"$NODE_ENV\" = \"production\" ]; then npm run start; else vite; fi",
     "build": "tsc -b && vite build",
-    "start": "vite preview --host 0.0.0.0 --port ${PORT:-5173}",
-    "railway:start": "npm run build && npm run start",
+    "start": "vite preview --host 0.0.0.0",
+    "railway:start": "npx serve -s dist -l $PORT",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx}\"",
