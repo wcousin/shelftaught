@@ -3,16 +3,18 @@ import { cache } from '../utils/cache';
 import { measureAsync } from '../utils/performance';
 import { mockApiResponses } from './mockData';
 
-// API Configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || 
-  (window.location.hostname.includes('railway.app') ? 'https://shelftaught-production.up.railway.app/api' : 
-   import.meta.env.PROD ? 'https://shelftaught-production.up.railway.app/api' : 'http://localhost:3001/api');
+// API Configuration - Force production API when on Railway
+const isOnRailway = window.location.hostname.includes('railway.app');
+const API_BASE_URL = isOnRailway 
+  ? 'https://shelftaught-production.up.railway.app/api'
+  : (import.meta.env.VITE_API_URL || 'http://localhost:3001/api');
 
 // Debug logging
-console.log('API Configuration Debug:');
+console.log('🔧 API Configuration Debug:');
 console.log('- VITE_API_URL:', import.meta.env.VITE_API_URL);
 console.log('- PROD mode:', import.meta.env.PROD);
 console.log('- Hostname:', window.location.hostname);
+console.log('- Is on Railway:', isOnRailway);
 console.log('- Final API_BASE_URL:', API_BASE_URL);
 
 // Create axios instance
