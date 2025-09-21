@@ -43,6 +43,15 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Handle preflight OPTIONS requests
+app.options('*', (req, res) => {
+  res.header('Access-Control-Allow-Origin', 'https://frontend-production-aeaaf.up.railway.app');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.sendStatus(200);
+});
+
 // Health check routes
 app.use('/', healthRoutes);
 
@@ -58,12 +67,44 @@ app.use(helmet({
   },
 }));
 
-// CORS configuration - temporarily permissive for debugging
+// CORS configuration for Railway deployment
 app.use(cors({
-  origin: true, // Allow all origins temporarily
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // In development, allow localhost
+    if (config.nodeEnv === 'development') {
+      return callback(null, true);
+    }
+    
+    // In production, allow Railway domains and configured frontend URL
+    const allowedOrigins = [
+      'https://frontend-production-aeaaf.up.railway.app',
+      'https://shelftaught.com',
+      /^https:\/\/.*\.up\.railway\.app$/,
+      /^https:\/\/.*\.railway\.app$/
+    ];
+    
+    const isAllowed = allowedOrigins.some(allowedOrigin => {
+      if (typeof allowedOrigin === 'string') {
+        return origin === allowedOrigin;
+      } else {
+        return allowedOrigin.test(origin);
+      }
+    });
+    
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 200
 }));
 
 // Monitoring middleware (must be early in the chain)
