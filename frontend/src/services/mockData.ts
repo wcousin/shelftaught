@@ -583,7 +583,7 @@ export const mockApiResponses = {
     };
   },
   
-  searchCurricula: (query: string, filters?: any) => {
+  searchCurricula: (query: string, _filters?: any) => {
     const filtered = mockCurricula.filter(curriculum =>
       curriculum.name.toLowerCase().includes(query.toLowerCase()) ||
       curriculum.publisher.toLowerCase().includes(query.toLowerCase()) ||

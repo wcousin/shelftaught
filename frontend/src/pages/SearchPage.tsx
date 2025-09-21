@@ -96,6 +96,8 @@ const SearchPage: React.FC<SearchPageProps> = ({ onFiltersChange, searchQuery: p
     setSearchParams({ q: newQuery, page: '1', sortBy, sortOrder });
   };
 
+  // TODO: Connect to filter sidebar component
+  // @ts-ignore - Function will be used when filter sidebar is implemented
   const handleFiltersChange = (filters: FilterState) => {
     setCurrentFilters(filters);
     setCurrentPage(1);

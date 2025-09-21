@@ -19,9 +19,7 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
 // Wrapper components for pages with sidebars
 const BrowsePageWithLayout: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  
-  const handleFiltersChange = (filters: any) => {
+  const handleFiltersChange = (_filters: any) => {
     // This will be handled by the BrowsePage component itself
   };
 
@@ -36,7 +34,7 @@ const SearchPageWithLayout: React.FC = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
   
-  const handleFiltersChange = (filters: any) => {
+  const handleFiltersChange = (_filters: any) => {
     // This will be handled by the SearchPage component itself
   };
 

@@ -70,6 +70,8 @@ const BrowsePage: React.FC<BrowsePageProps> = ({ onFiltersChange }) => {
     fetchCurricula();
   }, [currentPage, sortBy, sortOrder]);
 
+  // TODO: Connect to filter sidebar component
+  // @ts-ignore - Function will be used when filter sidebar is implemented
   const handleFiltersChange = (filters: FilterState) => {
     setCurrentPage(1);
     setSearchParams({ page: '1', sortBy, sortOrder });
