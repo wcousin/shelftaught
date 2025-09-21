@@ -109,9 +109,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     try {
       const response = await api.login({ email, password });
+      console.log('Login API response:', response.data);
+      
       // Handle both real API and mock API response structures
       const responseData = response.data.data || response.data;
       const { token, user } = responseData;
+      
+      console.log('Extracted user data:', user);
+      console.log('User role:', user.role);
       
       localStorage.setItem('authToken', token);
       localStorage.setItem('userData', JSON.stringify(user));
