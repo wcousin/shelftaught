@@ -9,6 +9,8 @@ const distPath = path.join(__dirname, 'dist');
 console.log('🚀 Starting frontend server...');
 console.log('📁 Serving from:', distPath);
 console.log('🌐 Port:', port);
+console.log('📂 Working directory:', __dirname);
+console.log('🔍 NODE_ENV:', process.env.NODE_ENV);
 
 // Check if dist directory exists
 if (!fs.existsSync(distPath)) {

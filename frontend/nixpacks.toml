@@ -2,10 +2,10 @@
 nixPkgs = ['nodejs', 'npm']
 
 [phases.build]
-cmds = ['npm ci', 'npm run build']
+cmds = ['npm ci']
 
 [phases.start]
-cmd = 'node server.cjs'
+cmd = './start.sh'
 
 [variables]
 NODE_ENV = 'production'
