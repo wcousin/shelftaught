@@ -5,7 +5,7 @@ nixPkgs = ['nodejs', 'npm']
 cmds = ['npm ci', 'npm run build']
 
 [phases.start]
-cmd = 'npm run railway:start'
+cmd = 'npm run railway:start:express'
 
 [variables]
 NODE_ENV = 'production'
