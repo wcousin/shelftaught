@@ -213,7 +213,7 @@ const AnalyticsDashboard: React.FC = () => {
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Top Rated Curricula</h3>
           <div className="space-y-3">
-            {analytics.topPerforming.topRatedCurricula.slice(0, 5).map((curriculum, index) => (
+            {(analytics?.topPerforming?.topRatedCurricula || []).slice(0, 5).map((curriculum, index) => (
               <div key={curriculum.id} className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <span className="flex-shrink-0 w-6 h-6 bg-yellow-100 text-yellow-800 rounded-full flex items-center justify-center text-sm font-medium">
@@ -236,7 +236,7 @@ const AnalyticsDashboard: React.FC = () => {
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Most Saved Curricula</h3>
           <div className="space-y-3">
-            {analytics.topPerforming.mostSavedCurricula.slice(0, 5).map((curriculum, index) => (
+            {(analytics?.topPerforming?.mostSavedCurricula || []).slice(0, 5).map((curriculum, index) => (
               <div key={curriculum.id} className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center text-sm font-medium">
@@ -262,7 +262,7 @@ const AnalyticsDashboard: React.FC = () => {
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Curricula by Grade Level</h3>
           <div className="space-y-3">
-            {analytics.distribution.byGradeLevel.map((grade) => (
+            {(analytics?.distribution?.byGradeLevel || []).map((grade) => (
               <div key={grade.id} className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-900">{grade.name}</p>
@@ -287,7 +287,7 @@ const AnalyticsDashboard: React.FC = () => {
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Curricula by Subject</h3>
           <div className="space-y-3">
-            {analytics.distribution.bySubject.slice(0, 8).map((subject) => (
+            {(analytics?.distribution?.bySubject || []).slice(0, 8).map((subject) => (
               <div key={subject.id} className="flex items-center justify-between">
                 <p className="text-sm font-medium text-gray-900">{subject.name}</p>
                 <div className="flex items-center space-x-2">
@@ -311,7 +311,7 @@ const AnalyticsDashboard: React.FC = () => {
       <div className="bg-white p-6 rounded-lg shadow">
         <h3 className="text-lg font-medium text-gray-900 mb-4">Average Ratings Across All Curricula</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {Object.entries(analytics.averageRatings).map(([key, value]) => (
+          {Object.entries(analytics?.averageRatings || {}).map(([key, value]) => (
             <div key={key} className="text-center">
               <p className="text-2xl font-bold text-gray-900">{value.toFixed(1)}</p>
               <p className="text-sm text-gray-500 capitalize">

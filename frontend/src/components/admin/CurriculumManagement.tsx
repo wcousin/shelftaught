@@ -148,7 +148,7 @@ const CurriculumManagement: React.FC = () => {
           {/* Curricula Table */}
           <div className="bg-white shadow overflow-hidden sm:rounded-md">
             <ul className="divide-y divide-gray-200">
-              {curricula.map((curriculum) => (
+              {(curricula || []).map((curriculum) => (
                 <li key={curriculum.id} className="px-6 py-4">
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">

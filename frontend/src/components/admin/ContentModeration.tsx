@@ -158,7 +158,7 @@ const ContentModeration: React.FC = () => {
             </div>
           ) : (
             <div className="divide-y divide-gray-200">
-              {items.map((item) => (
+              {(items || []).map((item) => (
                 <div key={item.id} className="p-6">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -191,7 +191,7 @@ const ContentModeration: React.FC = () => {
                       {item.reports.length > 0 && (
                         <div className="mt-3 p-3 bg-red-50 rounded-md">
                           <p className="text-sm font-medium text-red-800 mb-1">Reports:</p>
-                          {item.reports.slice(0, 2).map((report) => (
+                          {(item.reports || []).slice(0, 2).map((report) => (
                             <p key={report.id} className="text-sm text-red-700">
                               • {report.reason} (reported {new Date(report.reportedAt).toLocaleDateString()})
                             </p>
@@ -285,7 +285,7 @@ const ContentModeration: React.FC = () => {
                   <div>
                     <p className="text-sm font-medium text-gray-700">All Reports:</p>
                     <div className="mt-1 space-y-2">
-                      {selectedItem.reports.map((report) => (
+                      {(selectedItem?.reports || []).map((report) => (
                         <div key={report.id} className="p-2 bg-gray-50 rounded">
                           <p className="text-sm text-gray-900">{report.reason}</p>
                           <p className="text-xs text-gray-500">

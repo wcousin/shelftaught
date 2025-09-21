@@ -276,7 +276,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ curriculum, onSuccess, onCancel
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Select Grade Level</option>
-                {gradeLevels.map(grade => (
+                {(gradeLevels || []).map(grade => (
                   <option key={grade.id} value={grade.id}>
                     {grade.name} ({grade.ageRange})
                   </option>
@@ -291,7 +291,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ curriculum, onSuccess, onCancel
               Subjects Covered
             </label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-              {subjects.map(subject => (
+              {(subjects || []).map(subject => (
                 <label key={subject.id} className="flex items-center space-x-2">
                   <input
                     type="checkbox"
