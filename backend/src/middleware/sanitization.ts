@@ -1,12 +1,43 @@
 import { Request, Response, NextFunction } from 'express';
-import mongoSanitize from 'express-mongo-sanitize';
 
 /**
- * Sanitize user input to prevent NoSQL injection attacks
+ * Custom NoSQL injection prevention middleware
+ * Replaces express-mongo-sanitize to avoid compatibility issues with Express 5.x
  */
-export const sanitizeInput = mongoSanitize({
-  replaceWith: '_',
-});
+export const sanitizeInput = (req: Request, res: Response, next: NextFunction): void => {
+  // Recursively sanitize object to remove NoSQL injection patterns
+  const sanitizeObject = (obj: any): any => {
+    if (obj && typeof obj === 'object') {
+      if (Array.isArray(obj)) {
+        return obj.map(sanitizeObject);
+      }
+      
+      const sanitized: any = {};
+      for (const key in obj) {
+        // Remove keys that start with $ or contain dots (MongoDB operators)
+        if (typeof key === 'string' && (key.startsWith('$') || key.includes('.'))) {
+          continue;
+        }
+        sanitized[key] = sanitizeObject(obj[key]);
+      }
+      return sanitized;
+    }
+    return obj;
+  };
+
+  // Sanitize request body, query, and params
+  if (req.body) {
+    req.body = sanitizeObject(req.body);
+  }
+  if (req.query) {
+    req.query = sanitizeObject(req.query);
+  }
+  if (req.params) {
+    req.params = sanitizeObject(req.params);
+  }
+
+  next();
+};
 
 /**
  * Custom XSS protection middleware
