@@ -11,6 +11,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL ||
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
+  withCredentials: false, // Disable credentials for now due to CORS wildcard
   headers: {
     'Content-Type': 'application/json',
   },

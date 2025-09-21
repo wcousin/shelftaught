@@ -67,41 +67,10 @@ app.use(helmet({
   },
 }));
 
-// CORS configuration for Railway deployment
+// CORS configuration - completely permissive for debugging
 app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    // In development, allow localhost
-    if (config.nodeEnv === 'development') {
-      return callback(null, true);
-    }
-    
-    // In production, allow Railway domains and configured frontend URL
-    const allowedOrigins = [
-      'https://frontend-production-aeaaf.up.railway.app',
-      'https://shelftaught.com',
-      /^https:\/\/.*\.up\.railway\.app$/,
-      /^https:\/\/.*\.railway\.app$/
-    ];
-    
-    const isAllowed = allowedOrigins.some(allowedOrigin => {
-      if (typeof allowedOrigin === 'string') {
-        return origin === allowedOrigin;
-      } else {
-        return allowedOrigin.test(origin);
-      }
-    });
-    
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      console.log('CORS blocked origin:', origin);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
+  origin: '*',
+  credentials: false, // Can't use credentials with wildcard origin
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   optionsSuccessStatus: 200
