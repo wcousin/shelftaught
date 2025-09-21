@@ -5,7 +5,7 @@ import { mockApiResponses } from './mockData';
 
 // API Configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL || 
-  (import.meta.env.PROD ? 'https://api.shelftaught.com/api' : 'http://localhost:3001/api');
+  (import.meta.env.PROD ? 'https://shelftaught-production.up.railway.app/api' : 'http://localhost:3001/api');
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
