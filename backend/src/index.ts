@@ -122,6 +122,9 @@ app.use('/api/admin', adminRoutes);
 // SEO routes (sitemap, robots.txt)
 app.use('/', sitemapRoutes);
 
+// Health check routes
+app.use('/api', healthRoutes);
+
 // Protected route example (for testing authentication)
 app.get('/api/protected', authenticate, (req, res) => {
   res.success({
