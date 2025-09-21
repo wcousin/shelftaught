@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
-    "start": "serve -s dist -l 0.0.0.0:${PORT:-3000}",
-    "railway:start": "serve -s dist -l 0.0.0.0:$PORT",
+    "start": "node server.cjs",
+    "railway:start": "node server.cjs",
     "railway:start:express": "node server.cjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

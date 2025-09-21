@@ -22,9 +22,6 @@ RUN npm run build
 # Verify build output
 RUN ls -la dist/ && echo "Build verification complete"
 
-# Install serve globally to serve static files
-RUN npm install -g serve
-
 # Create a startup script with debugging
 RUN echo '#!/bin/sh' > /start.sh && \
     echo 'echo "🚀 Starting frontend application..."' >> /start.sh && \
@@ -32,8 +29,8 @@ RUN echo '#!/bin/sh' > /start.sh && \
     echo 'echo "🌐 PORT: ${PORT:-3000}"' >> /start.sh && \
     echo 'echo "📁 Dist contents:"' >> /start.sh && \
     echo 'ls -la dist/' >> /start.sh && \
-    echo 'echo "🔧 Starting serve on 0.0.0.0:${PORT:-3000}"' >> /start.sh && \
-    echo 'exec serve -s dist -l 0.0.0.0:${PORT:-3000}' >> /start.sh && \
+    echo 'echo "🔧 Starting Express server on 0.0.0.0:${PORT:-3000}"' >> /start.sh && \
+    echo 'exec node server.cjs' >> /start.sh && \
     chmod +x /start.sh
 
 # Expose port
