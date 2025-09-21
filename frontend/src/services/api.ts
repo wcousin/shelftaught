@@ -194,8 +194,10 @@ export const api = {
     try {
       return await apiClient.post('/auth/login', credentials);
     } catch (error) {
-      console.warn('Login API failed, using mock authentication:', error);
-      return await mockAuth.login(credentials);
+      console.error('Login API failed:', error);
+      // Temporarily disable mock fallback to see real error
+      throw error;
+      // return await mockAuth.login(credentials);
     }
   },
   

@@ -28,7 +28,14 @@ import sitemapRoutes from './routes/sitemap';
 import healthRoutes from './routes/health';
 
 // Load and validate environment configuration
+console.log('Loading environment configuration...');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('PORT:', process.env.PORT);
+console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
+console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
+
 const config = Environment.getConfig();
+console.log('Environment config loaded successfully');
 
 const app = express();
 
@@ -58,38 +65,9 @@ app.use(helmet({
   },
 }));
 
-// CORS configuration
+// CORS configuration - temporarily permissive for debugging
 app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    // In development, allow localhost
-    if (config.nodeEnv === 'development') {
-      return callback(null, true);
-    }
-    
-    // In production, allow Railway domains and configured frontend URL
-    const allowedOrigins = [
-      config.frontendUrl,
-      /^https:\/\/.*\.up\.railway\.app$/,
-      /^https:\/\/.*\.railway\.app$/
-    ];
-    
-    const isAllowed = allowedOrigins.some(allowedOrigin => {
-      if (typeof allowedOrigin === 'string') {
-        return origin === allowedOrigin;
-      } else {
-        return allowedOrigin.test(origin);
-      }
-    });
-    
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: true, // Allow all origins temporarily
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],

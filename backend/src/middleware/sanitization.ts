@@ -25,15 +25,13 @@ export const sanitizeInput = (req: Request, res: Response, next: NextFunction): 
     return obj;
   };
 
-  // Sanitize request body, query, and params
-  if (req.body) {
-    req.body = sanitizeObject(req.body);
-  }
-  if (req.query) {
-    req.query = sanitizeObject(req.query);
-  }
-  if (req.params) {
-    req.params = sanitizeObject(req.params);
+  // Sanitize request body only (query and params are read-only in Express 5.x)
+  if (req.body && typeof req.body === 'object') {
+    try {
+      req.body = sanitizeObject(req.body);
+    } catch (error) {
+      console.warn('Failed to sanitize request body:', error);
+    }
   }
 
   next();
@@ -63,14 +61,13 @@ export const xssProtection = (req: Request, res: Response, next: NextFunction): 
     return value;
   };
 
-  if (req.body) {
-    req.body = sanitizeValue(req.body);
-  }
-  if (req.query) {
-    req.query = sanitizeValue(req.query);
-  }
-  if (req.params) {
-    req.params = sanitizeValue(req.params);
+  // Only sanitize request body (query and params are read-only in Express 5.x)
+  if (req.body && typeof req.body === 'object') {
+    try {
+      req.body = sanitizeValue(req.body);
+    } catch (error) {
+      console.warn('Failed to sanitize request body:', error);
+    }
   }
 
   next();
