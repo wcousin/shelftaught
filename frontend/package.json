@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "start": "vite preview --host 0.0.0.0",
     "railway:start": "npx serve -s dist -l $PORT",
-    "railway:start:express": "node server.js",
+    "railway:start:express": "node server.cjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx}\"",
