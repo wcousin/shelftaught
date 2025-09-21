@@ -5,6 +5,7 @@ import CurriculumManagement from '../components/admin/CurriculumManagement';
 import UserManagement from '../components/admin/UserManagement';
 import AnalyticsDashboard from '../components/admin/AnalyticsDashboard';
 import ContentModeration from '../components/admin/ContentModeration';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 type AdminTab = 'curricula' | 'users' | 'analytics' | 'moderation';
 
@@ -12,8 +13,13 @@ const AdminPanel: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState<AdminTab>('curricula');
 
+  console.log('🔍 AdminPanel - Auth state:', { user, isAuthenticated });
+  console.log('🔍 AdminPanel - User role:', user?.role);
+  console.log('🔍 AdminPanel - Active tab:', activeTab);
+
   // Redirect if not authenticated or not admin
   if (!isAuthenticated || (user?.role !== 'admin' && user?.role !== 'ADMIN')) {
+    console.log('🔄 AdminPanel - Redirecting to login');
     return <Navigate to="/login" replace />;
   }
 
@@ -25,22 +31,61 @@ const AdminPanel: React.FC = () => {
   ];
 
   const renderActiveTab = () => {
-    switch (activeTab) {
-      case 'curricula':
-        return <CurriculumManagement />;
-      case 'users':
-        return <UserManagement />;
-      case 'analytics':
-        return <AnalyticsDashboard />;
-      case 'moderation':
-        return <ContentModeration />;
-      default:
-        return <CurriculumManagement />;
+    console.log('🔍 AdminPanel - Rendering tab:', activeTab);
+    try {
+      switch (activeTab) {
+        case 'curricula':
+          return (
+            <ErrorBoundary>
+              <CurriculumManagement />
+            </ErrorBoundary>
+          );
+        case 'users':
+          return (
+            <ErrorBoundary>
+              <UserManagement />
+            </ErrorBoundary>
+          );
+        case 'analytics':
+          return (
+            <ErrorBoundary>
+              <AnalyticsDashboard />
+            </ErrorBoundary>
+          );
+        case 'moderation':
+          return (
+            <ErrorBoundary>
+              <ContentModeration />
+            </ErrorBoundary>
+          );
+        default:
+          return (
+            <ErrorBoundary>
+              <CurriculumManagement />
+            </ErrorBoundary>
+          );
+      }
+    } catch (error) {
+      console.error('❌ AdminPanel - Error rendering tab:', error);
+      return (
+        <div className="text-center py-8">
+          <h3 className="text-lg font-medium text-red-600 mb-2">Error Loading Component</h3>
+          <p className="text-gray-600">There was an error loading this admin component.</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Reload Page
+          </button>
+        </div>
+      );
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50">
+  try {
+    return (
+      <ErrorBoundary>
+        <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
@@ -90,8 +135,26 @@ const AdminPanel: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
+      </div>
+      </ErrorBoundary>
+    );
+  } catch (error) {
+    console.error('❌ AdminPanel - Critical error:', error);
+    return (
+      <div className="min-h-screen bg-red-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Admin Panel Error</h1>
+          <p className="text-gray-600 mb-4">Something went wrong loading the admin panel.</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Reload Page
+          </button>
+        </div>
+      </div>
+    );
+  }
 };
 
 export default AdminPanel;

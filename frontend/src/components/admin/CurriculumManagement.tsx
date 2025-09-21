@@ -19,9 +19,14 @@ const CurriculumManagement: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  console.log('🔍 CurriculumManagement - Component mounted');
+
   const fetchCurricula = async (page = 1, search = '') => {
     try {
+      console.log('📡 CurriculumManagement - Fetching curricula...', { page, search });
       setLoading(true);
+      setError(null);
+      
       const response = await api.get('/admin/curricula', {
         params: {
           page,
@@ -30,13 +35,20 @@ const CurriculumManagement: React.FC = () => {
         }
       });
       
+      console.log('📊 CurriculumManagement - API response:', response.data);
+      
       if (response.data.success) {
+        console.log('✅ CurriculumManagement - Setting curricula:', response.data.curricula);
         setCurricula(response.data.curricula);
         setTotalPages(response.data.pagination.totalPages);
         setCurrentPage(page);
+      } else {
+        console.warn('⚠️ CurriculumManagement - API returned success: false');
+        setError('API returned unsuccessful response');
       }
     } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Failed to fetch curricula');
+      console.error('❌ CurriculumManagement - Fetch error:', err);
+      setError(err.response?.data?.error?.message || err.message || 'Failed to fetch curricula');
     } finally {
       setLoading(false);
     }
