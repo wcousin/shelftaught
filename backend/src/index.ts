@@ -60,7 +60,36 @@ app.use(helmet({
 
 // CORS configuration
 app.use(cors({
-  origin: config.frontendUrl,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // In development, allow localhost
+    if (config.nodeEnv === 'development') {
+      return callback(null, true);
+    }
+    
+    // In production, allow Railway domains and configured frontend URL
+    const allowedOrigins = [
+      config.frontendUrl,
+      /^https:\/\/.*\.up\.railway\.app$/,
+      /^https:\/\/.*\.railway\.app$/
+    ];
+    
+    const isAllowed = allowedOrigins.some(allowedOrigin => {
+      if (typeof allowedOrigin === 'string') {
+        return origin === allowedOrigin;
+      } else {
+        return allowedOrigin.test(origin);
+      }
+    });
+    
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
