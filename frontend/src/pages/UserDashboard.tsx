@@ -37,8 +37,8 @@ const UserDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Redirect admin users to admin panel
-  if (user?.role === 'admin') {
-    console.log('🔄 Redirecting admin user to admin panel');
+  if (user?.role === 'ADMIN' || user?.role === 'admin') {
+    console.log('🔄 Redirecting admin user to admin panel, role:', user?.role);
     return <Navigate to="/admin" replace />;
   }
 

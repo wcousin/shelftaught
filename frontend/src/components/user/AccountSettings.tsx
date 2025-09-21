@@ -121,7 +121,7 @@ export const AccountSettings: React.FC = () => {
       <div className="mt-8 pt-6 border-t border-gray-200">
         <h3 className="text-lg font-medium text-gray-900 mb-4">Account Information</h3>
         <div className="space-y-2 text-sm text-gray-600">
-          <p><span className="font-medium">Account Type:</span> {user?.role === 'admin' ? 'Administrator' : 'User'}</p>
+          <p><span className="font-medium">Account Type:</span> {(user?.role === 'admin' || user?.role === 'ADMIN') ? 'Administrator' : 'User'}</p>
           <p><span className="font-medium">Member Since:</span> {user ? new Date().toLocaleDateString() : 'N/A'}</p>
         </div>
       </div>

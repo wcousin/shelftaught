@@ -7,7 +7,7 @@ interface User {
   email: string;
   firstName: string;
   lastName: string;
-  role: 'user' | 'admin';
+  role: 'USER' | 'ADMIN' | 'user' | 'admin'; // Support both backend formats
 }
 
 interface AuthState {
