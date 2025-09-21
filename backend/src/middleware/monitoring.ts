@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { Logger } from '../utils/logger.js';
+import { Logger } from '../utils/logger';
 import { v4 as uuidv4 } from 'uuid';
 
 // Extend Request interface to include monitoring data

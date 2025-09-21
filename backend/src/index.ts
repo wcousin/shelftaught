@@ -32,6 +32,20 @@ const config = Environment.getConfig();
 
 const app = express();
 
+// Simple health check (before any middleware)
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    version: '1.0.0',
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Health check routes
+app.use('/', healthRoutes);
+
 // Security middleware
 app.use(helmet({
   contentSecurityPolicy: {
@@ -72,12 +86,8 @@ app.use(rateLimitMonitoringMiddleware);
 // Response helpers
 app.use(responseHelpers);
 
-// Request logging (enhanced with monitoring)
+// Request logging
 app.use(requestLogger);
-app.use(requestLoggingMiddleware);
-
-// Health check routes
-app.use('/', healthRoutes);
 
 // Basic API route
 app.get('/api', (req, res) => {
