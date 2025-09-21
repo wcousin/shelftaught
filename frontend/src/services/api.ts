@@ -262,7 +262,7 @@ export const api = {
               { name: 'Mathematics' }
             ],
             teachingApproachStyle: 'Self-Directed',
-            costPriceRange: '$$$',
+            costPriceRange: '$$',
             timeCommitmentDailyMinutes: 30
           }
         }
