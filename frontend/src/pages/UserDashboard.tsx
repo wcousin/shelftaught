@@ -36,11 +36,17 @@ const UserDashboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Debug: Log user role
+  console.log('🔍 UserDashboard - User role check:', user?.role);
+  console.log('🔍 UserDashboard - Is admin?', user?.role === 'ADMIN' || user?.role === 'admin');
+  
   // Redirect admin users to admin panel
   if (user?.role === 'ADMIN' || user?.role === 'admin') {
     console.log('🔄 Redirecting admin user to admin panel, role:', user?.role);
     return <Navigate to="/admin" replace />;
   }
+  
+  console.log('✅ UserDashboard - Not redirecting, continuing with dashboard');
 
   useEffect(() => {
     console.log('🔍 UserDashboard mounted, user:', user);

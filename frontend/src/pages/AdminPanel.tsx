@@ -13,7 +13,7 @@ const AdminPanel: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AdminTab>('curricula');
 
   // Redirect if not authenticated or not admin
-  if (!isAuthenticated || user?.role !== 'admin') {
+  if (!isAuthenticated || (user?.role !== 'admin' && user?.role !== 'ADMIN')) {
     return <Navigate to="/login" replace />;
   }
 
