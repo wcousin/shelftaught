@@ -23,7 +23,7 @@ describe('Backend Performance Tests', () => {
         passwordHash: hashedPassword,
         firstName: 'Test',
         lastName: 'User',
-        role: 'user'
+        role: 'USER'
       }
     });
 

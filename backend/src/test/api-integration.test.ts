@@ -25,7 +25,7 @@ describe('API Integration Tests', () => {
         passwordHash: hashedPassword,
         firstName: 'Test',
         lastName: 'User',
-        role: 'user'
+        role: 'USER'
       }
     });
     testUserId = testUser.id;
@@ -37,7 +37,7 @@ describe('API Integration Tests', () => {
         passwordHash: hashedPassword,
         firstName: 'Admin',
         lastName: 'User',
-        role: 'admin'
+        role: 'ADMIN'
       }
     });
 
@@ -60,12 +60,8 @@ describe('API Integration Tests', () => {
         name: 'Test Curriculum',
         publisher: 'Test Publisher',
         description: 'A test curriculum for integration testing',
-        targetAgeGrade: {
-          minAge: 6,
-          maxAge: 12,
-          gradeRange: 'K-6',
-          rating: 4
-        },
+        gradeLevelId: 'test-grade-level-id',
+        targetAgeGradeRating: 4,
         teachingApproach: {
           style: 'Traditional',
           description: 'Traditional teaching approach',
