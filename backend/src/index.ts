@@ -148,11 +148,17 @@ const startServer = async () => {
     await DatabaseService.connect();
     
     // Start HTTP server
-    app.listen(config.port, '0.0.0.0', () => {
+    const server = app.listen(config.port, '0.0.0.0', () => {
       Logger.info(`🚀 Server running on port ${config.port}`);
       Logger.info(`📊 Health check available at http://0.0.0.0:${config.port}/health`);
       Logger.info(`🔐 API documentation available at http://0.0.0.0:${config.port}/api`);
       Logger.info(`🌍 Environment: ${config.nodeEnv}`);
+      Logger.info(`🔧 PORT env var: ${process.env.PORT}`);
+      Logger.info(`🔧 Listening on: 0.0.0.0:${config.port}`);
+    });
+    
+    server.on('error', (error) => {
+      Logger.error('Server error:', error);
     });
   } catch (error) {
     Logger.error('Failed to start server', error);
