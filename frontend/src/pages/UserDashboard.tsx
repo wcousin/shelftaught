@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../services/api';
 import { SavedCurriculumCard } from '../components/user/SavedCurriculumCard';
@@ -35,22 +36,58 @@ const UserDashboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Redirect admin users to admin panel
+  if (user?.role === 'admin') {
+    console.log('🔄 Redirecting admin user to admin panel');
+    return <Navigate to="/admin" replace />;
+  }
+
   useEffect(() => {
     console.log('🔍 UserDashboard mounted, user:', user);
-    fetchSavedCurricula();
+    console.log('👤 User firstName:', user?.firstName);
+    console.log('🎭 User role:', user?.role);
+    
+    // Add a small delay to ensure the component is fully mounted
+    const timer = setTimeout(() => {
+      fetchSavedCurricula();
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   const fetchSavedCurricula = async () => {
     try {
       console.log('📡 Fetching saved curricula...');
       setIsLoading(true);
+      setError(null);
+      
       const response = await api.getSavedCurricula();
       console.log('📊 API response:', response);
-      console.log('📚 Saved curricula data:', response.data.savedCurricula);
-      setSavedCurricula(response.data.savedCurricula);
+      
+      // Defensive programming - check response structure
+      if (!response || !response.data) {
+        throw new Error('Invalid API response structure');
+      }
+      
+      const curricula = response.data.savedCurricula || [];
+      console.log('📚 Saved curricula data:', curricula);
+      console.log('📊 Curricula count:', curricula.length);
+      
+      // Validate each curriculum object
+      const validCurricula = curricula.filter((item: any) => {
+        if (!item || !item.curriculum) {
+          console.warn('⚠️ Invalid curriculum item:', item);
+          return false;
+        }
+        return true;
+      });
+      
+      console.log('✅ Valid curricula:', validCurricula.length);
+      setSavedCurricula(validCurricula);
+      
     } catch (error) {
       console.error('❌ Failed to fetch saved curricula:', error);
-      setError('Failed to load saved curricula');
+      setError(`Failed to load saved curricula: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsLoading(false);
     }
@@ -155,14 +192,25 @@ const UserDashboard: React.FC = () => {
               </div>
             ) : (
               <div className="space-y-6">
-                {savedCurricula.map((savedCurriculum) => (
-                  <SavedCurriculumCard
-                    key={savedCurriculum.id}
-                    savedCurriculum={savedCurriculum}
-                    onRemove={handleRemoveCurriculum}
-                    onNotesUpdate={handleNotesUpdate}
-                  />
-                ))}
+                {savedCurricula.map((savedCurriculum) => {
+                  try {
+                    return (
+                      <SavedCurriculumCard
+                        key={savedCurriculum.id}
+                        savedCurriculum={savedCurriculum}
+                        onRemove={handleRemoveCurriculum}
+                        onNotesUpdate={handleNotesUpdate}
+                      />
+                    );
+                  } catch (error) {
+                    console.error('❌ Error rendering SavedCurriculumCard:', error, savedCurriculum);
+                    return (
+                      <div key={savedCurriculum.id} className="bg-red-50 border border-red-200 p-4 rounded-md">
+                        <p className="text-red-700">Error loading curriculum: {savedCurriculum.curriculum?.name || 'Unknown'}</p>
+                      </div>
+                    );
+                  }
+                })}
               </div>
             )}
           </div>

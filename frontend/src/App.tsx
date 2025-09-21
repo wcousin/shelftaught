@@ -13,7 +13,7 @@ import CurriculumDetailPage from './pages/CurriculumDetailPage';
 import ComparisonPage from './pages/ComparisonPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-// import UserDashboard from './pages/UserDashboard';
+import UserDashboard from './pages/UserDashboard';
 import UserDashboardSimple from './pages/UserDashboardSimple';
 import AdminPanel from './pages/AdminPanel';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
@@ -98,7 +98,9 @@ function App() {
             } />
             <Route path="/dashboard" element={
               <ProtectedRoute>
-                <UserDashboardSimple />
+                <Layout>
+                  <UserDashboard />
+                </Layout>
               </ProtectedRoute>
             } />
             <Route path="/dashboard-test" element={
