@@ -7,7 +7,7 @@
     "build:railway": "echo 'Skipping build during Railway build phase - will build during start'",
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
-    "railway:start": "echo 'Starting Railway deployment...' && echo 'DATABASE_URL is:' $DATABASE_URL && npx prisma generate && npm run build && npx prisma migrate deploy && npx prisma db seed && npm start",
+    "railway:start": "echo 'Starting Railway deployment...' && echo 'DATABASE_URL is:' $DATABASE_URL && npx prisma generate && npm run build && npx prisma migrate deploy && npm start",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "format": "prettier --write \"src/**/*.ts\"",
