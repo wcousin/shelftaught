@@ -6,7 +6,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
-    "railway:start": "DATABASE_URL=$DATABASE_URL npx prisma generate && npm run build && npx prisma migrate deploy && npx prisma db seed && npm start",
+    "railway:start": "echo 'Starting Railway deployment...' && echo 'DATABASE_URL is:' $DATABASE_URL && npx prisma generate && npm run build && npx prisma migrate deploy && npx prisma db seed && npm start",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "format": "prettier --write \"src/**/*.ts\"",
