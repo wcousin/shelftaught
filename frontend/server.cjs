@@ -25,6 +25,12 @@ if (!fs.existsSync(indexPath)) {
 
 console.log('✅ Build files verified');
 
+// Log all incoming requests
+app.use((req, res, next) => {
+  console.log(`📥 ${req.method} ${req.path} from ${req.ip}`);
+  next();
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ 
@@ -45,11 +51,24 @@ app.get('*', (req, res) => {
 // Start server
 const server = app.listen(port, '0.0.0.0', () => {
   console.log(`✅ Server running on http://0.0.0.0:${port}`);
+  console.log(`🔗 Health check: http://0.0.0.0:${port}/health`);
+  console.log(`🌍 Environment variables:`);
+  console.log(`   PORT: ${process.env.PORT}`);
+  console.log(`   NODE_ENV: ${process.env.NODE_ENV}`);
 });
 
 server.on('error', (err) => {
   console.error('❌ Server error:', err);
+  if (err.code === 'EADDRINUSE') {
+    console.error(`❌ Port ${port} is already in use`);
+  }
   process.exit(1);
+});
+
+// Log all incoming requests
+app.use((req, res, next) => {
+  console.log(`📥 ${req.method} ${req.path} from ${req.ip}`);
+  next();
 });
 
 // Graceful shutdown

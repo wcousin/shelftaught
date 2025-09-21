@@ -1,11 +1,15 @@
 [phases.setup]
 nixPkgs = ['nodejs']
 
+[phases.install]
+cmds = ['npm ci']
+
 [phases.build]
-cmds = ['npm ci', 'npm run build']
+cmds = ['npm run build']
 
 [phases.start]
 cmd = 'node server.cjs'
 
 [variables]
 NODE_ENV = 'production'
+NPM_CONFIG_PRODUCTION = 'false'
