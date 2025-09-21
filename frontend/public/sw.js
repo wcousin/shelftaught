@@ -48,25 +48,9 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Handle API requests with network-first strategy
-  if (url.pathname.startsWith('/api/')) {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          // Only cache successful GET requests
-          if (request.method === 'GET' && response.status === 200) {
-            const responseClone = response.clone();
-            caches.open(API_CACHE_NAME).then((cache) => {
-              cache.put(request, responseClone);
-            });
-          }
-          return response;
-        })
-        .catch(() => {
-          // Fallback to cache if network fails
-          return caches.match(request);
-        })
-    );
+  // Skip service worker for API requests - let them go directly to network
+  if (url.pathname.startsWith('/api/') || url.hostname.includes('railway.app') || url.hostname === 'localhost') {
+    // Don't intercept API calls, let them go through normally
     return;
   }
 
