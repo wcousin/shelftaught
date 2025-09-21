@@ -1,11 +1,11 @@
 [phases.setup]
-nixPkgs = ['nodejs', 'npm']
+nixPkgs = ['nodejs']
 
 [phases.build]
 cmds = ['npm ci', 'npm run build']
 
 [phases.start]
-cmd = 'node server.cjs'
+cmd = 'npx serve -s dist -p $PORT'
 
 [variables]
 NODE_ENV = 'production'
