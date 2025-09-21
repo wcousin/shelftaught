@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "if [ \"$NODE_ENV\" = \"production\" ]; then npm run start; else vite; fi",
     "build": "tsc -b && vite build",
-    "start": "vite preview --host 0.0.0.0",
+    "start": "node start.js",
     "railway:start": "npx serve -s dist -l $PORT",
     "railway:start:express": "node server.cjs",
     "lint": "eslint .",
