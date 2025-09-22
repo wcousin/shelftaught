@@ -36,11 +36,12 @@ const CurriculumManagement: React.FC = () => {
       });
       
       console.log('📊 CurriculumManagement - API response:', response.data);
+      console.log('📊 CurriculumManagement - API response.data:', response.data.data);
       
       if (response.data.success) {
-        console.log('✅ CurriculumManagement - Setting curricula:', response.data.curricula);
-        setCurricula(response.data.curricula || []);
-        setTotalPages(response.data.pagination?.totalPages || 1);
+        console.log('✅ CurriculumManagement - Setting curricula:', response.data.data.curricula);
+        setCurricula(response.data.data.curricula || []);
+        setTotalPages(response.data.data.pagination?.totalPages || 1);
         setCurrentPage(page);
       } else {
         console.warn('⚠️ CurriculumManagement - API returned success: false');
