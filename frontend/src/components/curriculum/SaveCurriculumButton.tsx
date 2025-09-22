@@ -86,7 +86,7 @@ export const SaveCurriculumButton: React.FC<SaveCurriculumButtonProps> = ({
             d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
           />
         </svg>
-        Save Curriculum
+        Save
       </button>
     );
   }
@@ -118,7 +118,7 @@ export const SaveCurriculumButton: React.FC<SaveCurriculumButtonProps> = ({
         ? 'Saving...'
         : isSaved
         ? 'Saved'
-        : 'Save Curriculum'
+        : 'Save'
       }
     </button>
   );
