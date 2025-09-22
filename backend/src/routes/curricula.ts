@@ -167,25 +167,70 @@ router.get('/:slugOrId', asyncHandler(async (req: Request, res: Response) => {
   }
   
   // Try to find by slug first, then by ID for backward compatibility
-  let curriculum = await prisma.curriculum.findUnique({
-    where: { slug: slugOrId },
-    include: {
-      gradeLevel: {
-        select: {
-          id: true,
-          name: true,
-          ageRange: true,
-          minAge: true,
-          maxAge: true
+  let curriculum;
+  try {
+    curriculum = await prisma.curriculum.findUnique({
+      where: { slug: slugOrId },
+      include: {
+        gradeLevel: {
+          select: {
+            id: true,
+            name: true,
+            ageRange: true,
+            minAge: true,
+            maxAge: true
+          }
+        },
+        curriculumSubjects: {
+          include: {
+            subject: {
+              select: {
+                id: true,
+                name: true,
+                description: true
+              }
+            }
+          }
         }
-      },
-      curriculumSubjects: {
-        include: {
-          subject: {
-            select: {
-              id: true,
-              name: true,
-              description: true
+      }
+    });
+  } catch (error) {
+    // If slug column doesn't exist yet, skip slug lookup
+    console.warn('Slug lookup failed, trying ID lookup:', error);
+    curriculum = null;
+  }
+  
+  // If not found by slug, try by ID for backward compatibility
+  if (!curriculum) {
+    curriculum = await prisma.curriculum.findUnique({
+      where: { id: slugOrId },
+      include: {
+        gradeLevel: {
+          select: {
+            id: true,
+            name: true,
+            ageRange: true,
+            minAge: true,
+            maxAge: true
+          }
+        },
+        curriculumSubjects: {
+          include: {
+            subject: {
+              select: {
+                id: true,
+                name: true,
+                description: true
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+                id: true,
+                name: true,
+                description: true
             }
           }
         }
