@@ -46,18 +46,31 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     const fetchFeaturedCurricula = async () => {
       try {
+        console.log('🏠 HomePage: Starting to fetch curricula...');
         setLoading(true);
         setError(null);
+        
         const response = await api.getCurricula({ 
           limit: 6, 
           sortBy: 'overallRating', 
           sortOrder: 'desc' 
         });
-        setFeaturedCurricula(response.data.curricula || []);
+        
+        console.log('🏠 HomePage: API response received:', response);
+        console.log('🏠 HomePage: Response data:', response.data);
+        console.log('🏠 HomePage: Curricula array:', response.data.curricula);
+        console.log('🏠 HomePage: Curricula length:', response.data.curricula?.length);
+        
+        const curricula = response.data.curricula || [];
+        console.log('🏠 HomePage: Setting curricula state:', curricula);
+        setFeaturedCurricula(curricula);
+        
+        console.log('🏠 HomePage: State should be updated with', curricula.length, 'curricula');
       } catch (err) {
-        console.error('Error fetching featured curricula:', err);
+        console.error('🏠 HomePage: Error fetching featured curricula:', err);
         setError('Failed to load featured curricula');
       } finally {
+        console.log('🏠 HomePage: Setting loading to false');
         setLoading(false);
       }
     };
@@ -173,7 +186,7 @@ const HomePage: React.FC = () => {
                     description={curriculum.description}
                     overallRating={curriculum.overallRating}
                     imageUrl={curriculum.imageUrl}
-                    subjects={curriculum.subjects}
+                    subjects={curriculum.subjects.map(s => s.name)}
                     gradeRange={curriculum.gradeLevel.ageRange}
                     onClick={() => handleCurriculumClick(curriculum.id)}
                   />
@@ -186,7 +199,7 @@ const HomePage: React.FC = () => {
                     description={curriculum.description}
                     overallRating={curriculum.overallRating}
                     imageUrl={curriculum.imageUrl}
-                    subjects={curriculum.subjects}
+                    subjects={curriculum.subjects.map(s => s.name)}
                     gradeRange={curriculum.gradeLevel.ageRange}
                     onClick={() => handleCurriculumClick(curriculum.id)}
                   />

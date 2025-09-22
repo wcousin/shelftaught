@@ -270,7 +270,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ onFiltersChange, searchQuery: p
                   description={curriculum.description}
                   overallRating={curriculum.overallRating}
                   imageUrl={curriculum.imageUrl}
-                  subjects={curriculum.subjects}
+                  subjects={curriculum.subjects.map(s => s.name)}
                   gradeRange={curriculum.gradeLevel.ageRange}
                   onClick={() => handleCurriculumClick(curriculum.id)}
                 />

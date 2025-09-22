@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Frontend API Connection</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Frontend API Connection Debug</h1>
+    <div id="results"></div>
+
+    <script>
+        const resultsDiv = document.getElementById('results');
+        
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = message;
+            resultsDiv.appendChild(div);
+        }
+        
+        function logSection(title, content) {
+            const section = document.createElement('div');
+            section.className = 'test-section';
+            section.innerHTML = `<h3>${title}</h3>${content}`;
+            resultsDiv.appendChild(section);
+        }
+
+        async function debugAPI() {
+            // 1. Check environment detection
+            const hostname = window.location.hostname;
+            const isOnRailway = hostname.includes('railway.app') || 
+                               hostname.includes('frontend-new-production-96a4.up.railway.app');
+            const API_BASE_URL = isOnRailway 
+              ? 'https://shelftaught-production.up.railway.app/api'
+              : 'http://localhost:3001/api';
+            
+            logSection('Environment Detection', `
+                <p><strong>Hostname:</strong> ${hostname}</p>
+                <p><strong>Is on Railway:</strong> ${isOnRailway}</p>
+                <p><strong>API Base URL:</strong> ${API_BASE_URL}</p>
+            `);
+
+            // 2. Test backend health
+            try {
+                log('Testing backend health...', 'info');
+                const healthResponse = await fetch('https://shelftaught-production.up.railway.app/health');
+                const healthData = await healthResponse.json();
+                
+                if (healthResponse.ok) {
+                    log('✅ Backend health check passed', 'success');
+                    logSection('Backend Health Response', `<pre>${JSON.stringify(healthData, null, 2)}</pre>`);
+                } else {
+                    log('❌ Backend health check failed', 'error');
+                }
+            } catch (error) {
+                log(`❌ Backend health check error: ${error.message}`, 'error');
+            }
+
+            // 3. Test API root
+            try {
+                log('Testing API root...', 'info');
+                const apiResponse = await fetch('https://shelftaught-production.up.railway.app/api');
+                const apiData = await apiResponse.json();
+                
+                if (apiResponse.ok) {
+                    log('✅ API root accessible', 'success');
+                    logSection('API Root Response', `<pre>${JSON.stringify(apiData, null, 2)}</pre>`);
+                } else {
+                    log('❌ API root failed', 'error');
+                }
+            } catch (error) {
+                log(`❌ API root error: ${error.message}`, 'error');
+            }
+
+            // 4. Test curricula endpoint
+            try {
+                log('Testing curricula endpoint...', 'info');
+                const curriculaResponse = await fetch('https://shelftaught-production.up.railway.app/api/curricula?limit=3');
+                const curriculaData = await curriculaResponse.json();
+                
+                if (curriculaResponse.ok) {
+                    log('✅ Curricula endpoint accessible', 'success');
+                    logSection('Curricula Response', `<pre>${JSON.stringify(curriculaData, null, 2)}</pre>`);
+                    
+                    // Check data structure
+                    if (curriculaData.success && curriculaData.data && curriculaData.data.curricula) {
+                        const firstCurriculum = curriculaData.data.curricula[0];
+                        if (firstCurriculum) {
+                            log('✅ Curricula data structure looks correct', 'success');
+                            logSection('First Curriculum Structure', `
+                                <p><strong>Has subjects:</strong> ${firstCurriculum.subjects ? '✅' : '❌'}</p>
+                                <p><strong>Has gradeLevel:</strong> ${firstCurriculum.gradeLevel ? '✅' : '❌'}</p>
+                                <p><strong>Has gradeLevel.ageRange:</strong> ${firstCurriculum.gradeLevel?.ageRange ? '✅' : '❌'}</p>
+                                <p><strong>Subjects structure:</strong> <pre>${JSON.stringify(firstCurriculum.subjects, null, 2)}</pre></p>
+                                <p><strong>GradeLevel structure:</strong> <pre>${JSON.stringify(firstCurriculum.gradeLevel, null, 2)}</pre></p>
+                            `);
+                        }
+                    } else {
+                        log('❌ Curricula data structure is incorrect', 'error');
+                    }
+                } else {
+                    log('❌ Curricula endpoint failed', 'error');
+                    logSection('Curricula Error Response', `<pre>${JSON.stringify(curriculaData, null, 2)}</pre>`);
+                }
+            } catch (error) {
+                log(`❌ Curricula endpoint error: ${error.message}`, 'error');
+            }
+
+            // 5. Test CORS
+            try {
+                log('Testing CORS with credentials...', 'info');
+                const corsResponse = await fetch('https://shelftaught-production.up.railway.app/api/curricula?limit=1', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'omit' // Test without credentials first
+                });
+                
+                if (corsResponse.ok) {
+                    log('✅ CORS working correctly', 'success');
+                } else {
+                    log('❌ CORS issue detected', 'error');
+                }
+            } catch (error) {
+                log(`❌ CORS test error: ${error.message}`, 'error');
+            }
+        }
+
+        // Run debug on page load
+        debugAPI();
+    </script>
+</body>
+</html>

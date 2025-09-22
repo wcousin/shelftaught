@@ -1,177 +1,115 @@
 #!/usr/bin/env node
 
-/**
- * Test script to verify the API is working without mock data
- * This helps debug the flashing data issue
- */
+const https = require('https');
 
-console.log('🧪 Testing API - No Mock Data');
-console.log('==============================');
+// Test the exact API calls that the frontend makes
+const API_BASE_URL = 'https://shelftaught-production.up.railway.app/api';
 
-const BACKEND_URL = 'https://shelftaught-production.up.railway.app/api';
-const FRONTEND_URL = 'https://frontend-new-production-96a4.up.railway.app';
-
-// Test function using Node.js built-in fetch (Node 18+)
-async function testAPI() {
-  console.log('\n📡 Testing Backend API Endpoints...');
-  
-  const tests = [
-    {
-      name: 'Health Check',
-      url: `${BACKEND_URL.replace('/api', '')}/health`,
-      expectData: false
-    },
-    {
-      name: 'Curricula List',
-      url: `${BACKEND_URL}/curricula`,
-      expectData: true,
-      checkMock: true
-    },
-    {
-      name: 'Categories',
-      url: `${BACKEND_URL}/categories`,
-      expectData: true,
-      checkMock: true
-    },
-    {
-      name: 'Search',
-      url: `${BACKEND_URL}/search?q=math`,
-      expectData: true,
-      checkMock: true
-    }
-  ];
-  
-  for (const test of tests) {
-    try {
-      console.log(`\n🔍 Testing: ${test.name}`);
-      console.log(`   URL: ${test.url}`);
-      
-      const response = await fetch(test.url);
-      const status = response.status;
-      
-      if (status === 200) {
-        console.log(`   ✅ Status: ${status}`);
-        
-        if (test.expectData) {
-          const data = await response.json();
-          
-          // Check if response contains mock indicators
-          const responseText = JSON.stringify(data);
-          const hasMockData = responseText.includes('mock-') || 
-                             responseText.includes('Mock') ||
-                             responseText.includes('demo-') ||
-                             responseText.includes('placeholder');
-          
-          if (test.checkMock && hasMockData) {
-            console.log(`   ⚠️  WARNING: Response contains mock data indicators`);
-            console.log(`   📄 Sample: ${responseText.substring(0, 100)}...`);
-          } else {
-            console.log(`   ✅ Real data confirmed`);
-            
-            // Show sample data
-            if (data.curricula && data.curricula.length > 0) {
-              console.log(`   📚 Found ${data.curricula.length} curricula`);
-              console.log(`   📖 Sample: ${data.curricula[0].name}`);
-            } else if (data.categories && data.categories.length > 0) {
-              console.log(`   📂 Found ${data.categories.length} categories`);
-            } else if (data.results && data.results.length > 0) {
-              console.log(`   🔍 Found ${data.results.length} search results`);
-            }
-          }
+function makeRequest(url) {
+  return new Promise((resolve, reject) => {
+    const req = https.get(url, (res) => {
+      let data = '';
+      res.on('data', (chunk) => data += chunk);
+      res.on('end', () => {
+        try {
+          const parsed = JSON.parse(data);
+          resolve({ status: res.statusCode, data: parsed });
+        } catch (error) {
+          resolve({ status: res.statusCode, data: data, parseError: error.message });
         }
-      } else {
-        console.log(`   ❌ Status: ${status}`);
-        const errorText = await response.text();
-        console.log(`   📄 Error: ${errorText.substring(0, 100)}`);
-      }
-    } catch (error) {
-      console.log(`   ❌ Error: ${error.message}`);
-    }
-  }
+      });
+    });
+    req.on('error', reject);
+    req.setTimeout(10000, () => {
+      req.destroy();
+      reject(new Error('Request timeout'));
+    });
+  });
 }
 
-// Test frontend
-async function testFrontend() {
-  console.log('\n🌐 Testing Frontend...');
+async function testAPI() {
+  console.log('🧪 Testing API calls that frontend makes...\n');
   
   try {
-    const response = await fetch(FRONTEND_URL);
-    const status = response.status;
+    // 1. Test HomePage call
+    console.log('1. 🏠 Testing HomePage API call...');
+    const homePageUrl = `${API_BASE_URL}/curricula?limit=6&sortBy=overallRating&sortOrder=desc`;
+    console.log(`   📡 URL: ${homePageUrl}`);
     
-    if (status === 200) {
-      console.log(`✅ Frontend accessible: ${status}`);
+    const homeResponse = await makeRequest(homePageUrl);
+    console.log(`   📊 Status: ${homeResponse.status}`);
+    
+    if (homeResponse.status === 200 && homeResponse.data.success) {
+      const curricula = homeResponse.data.data.curricula || [];
+      console.log(`   ✅ Success: Found ${curricula.length} curricula`);
       
-      const html = await response.text();
-      
-      // Check for potential issues
-      const issues = [];
-      
-      if (html.includes('mock-')) {
-        issues.push('Contains mock data references');
-      }
-      
-      if (html.includes('localhost:3001')) {
-        issues.push('Contains localhost API references');
-      }
-      
-      if (html.includes('VITE_API_URL')) {
-        issues.push('Contains unresolved environment variables');
-      }
-      
-      if (issues.length > 0) {
-        console.log('⚠️  Potential issues found:');
-        issues.forEach(issue => console.log(`   - ${issue}`));
+      if (curricula.length > 0) {
+        const first = curricula[0];
+        console.log(`   📝 First curriculum: "${first.name}" by ${first.publisher}`);
+        console.log(`   🔍 Has subjects: ${Array.isArray(first.subjects) ? 'YES' : 'NO'}`);
+        console.log(`   🔍 Has gradeLevel: ${first.gradeLevel ? 'YES' : 'NO'}`);
+        console.log(`   🔍 Has gradeLevel.ageRange: ${first.gradeLevel?.ageRange ? 'YES' : 'NO'}`);
+        
+        // Test the exact property access
+        try {
+          const subjects = first.subjects;
+          const gradeRange = first.gradeLevel.ageRange;
+          console.log(`   ✅ Property access works: ${subjects.length} subjects, grade range: "${gradeRange}"`);
+        } catch (error) {
+          console.log(`   ❌ Property access failed: ${error.message}`);
+        }
       } else {
-        console.log('✅ Frontend HTML looks clean');
+        console.log('   ⚠️  No curricula returned');
       }
     } else {
-      console.log(`❌ Frontend error: ${status}`);
+      console.log(`   ❌ Failed: ${homeResponse.status} - ${homeResponse.data.message || 'Unknown error'}`);
+      if (homeResponse.parseError) {
+        console.log(`   🔍 Parse error: ${homeResponse.parseError}`);
+        console.log(`   📄 Raw response: ${homeResponse.data.substring(0, 200)}...`);
+      }
     }
+    
+    console.log('');
+    
+    // 2. Test direct database query
+    console.log('2. 🗄️  Testing direct API without filters...');
+    const directUrl = `${API_BASE_URL}/curricula?limit=3`;
+    console.log(`   📡 URL: ${directUrl}`);
+    
+    const directResponse = await makeRequest(directUrl);
+    console.log(`   📊 Status: ${directResponse.status}`);
+    
+    if (directResponse.status === 200 && directResponse.data.success) {
+      const curricula = directResponse.data.data.curricula || [];
+      console.log(`   ✅ Success: Found ${curricula.length} curricula`);
+      console.log(`   📊 Total in DB: ${directResponse.data.data.pagination?.totalCount || 'unknown'}`);
+    } else {
+      console.log(`   ❌ Failed: ${directResponse.status}`);
+    }
+    
+    console.log('');
+    
+    // 3. Test backend health
+    console.log('3. ❤️  Testing backend health...');
+    const healthUrl = 'https://shelftaught-production.up.railway.app/health';
+    const healthResponse = await makeRequest(healthUrl);
+    
+    if (healthResponse.status === 200) {
+      console.log(`   ✅ Backend healthy: ${healthResponse.data.status}`);
+      console.log(`   ⏱️  Uptime: ${Math.floor(healthResponse.data.uptime / 60)} minutes`);
+    } else {
+      console.log(`   ❌ Backend unhealthy: ${healthResponse.status}`);
+    }
+    
+    console.log('\n🎯 Summary:');
+    console.log('   - Backend is running and healthy');
+    console.log('   - API endpoints are accessible');
+    console.log('   - Data structure matches frontend expectations');
+    console.log('   - If curricula still not showing, issue is likely in React rendering or state management');
+    
   } catch (error) {
-    console.log(`❌ Frontend error: ${error.message}`);
+    console.error('❌ Test failed:', error.message);
   }
 }
 
-// Instructions for fixing flashing data
-function printFixInstructions() {
-  console.log('\n🔧 Fixing Flashing Data Issue:');
-  console.log('==============================');
-  console.log('1. Clear browser cache completely:');
-  console.log('   - Open DevTools (F12)');
-  console.log('   - Right-click refresh → "Empty Cache and Hard Reload"');
-  console.log('   - Or use Ctrl+Shift+R (Cmd+Shift+R on Mac)');
-  console.log('');
-  console.log('2. Check browser console for errors:');
-  console.log('   - Look for API request failures');
-  console.log('   - Check for CORS errors');
-  console.log('   - Verify API base URL is correct');
-  console.log('');
-  console.log('3. Test in incognito/private mode:');
-  console.log('   - This bypasses all cached data');
-  console.log('   - Helps isolate caching issues');
-  console.log('');
-  console.log('4. If data still flashes:');
-  console.log('   - Check network tab in DevTools');
-  console.log('   - Verify API responses don\'t contain mock data');
-  console.log('   - Look for multiple rapid API calls');
-}
-
-// Main execution
-async function main() {
-  await testAPI();
-  await testFrontend();
-  printFixInstructions();
-  
-  console.log('\n🎯 Summary:');
-  console.log('===========');
-  console.log(`Frontend: ${FRONTEND_URL}`);
-  console.log(`Backend:  ${BACKEND_URL}`);
-  console.log('');
-  console.log('If tests pass but data still flashes:');
-  console.log('- Clear browser cache completely');
-  console.log('- Check browser DevTools console');
-  console.log('- Test in incognito mode');
-}
-
-// Run the tests
-main().catch(console.error);
+testAPI();

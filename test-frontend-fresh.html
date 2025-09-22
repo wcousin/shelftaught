@@ -1,232 +1,119 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shelf Taught - Fresh Test</title>
+    <title>Cache-Busted Frontend Test</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        .test-section {
-            background: #f5f5f5;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 8px;
-        }
-        .success { color: #22c55e; }
-        .error { color: #ef4444; }
-        .warning { color: #f59e0b; }
-        .info { color: #3b82f6; }
-        button {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            margin: 5px;
-        }
-        button:hover {
-            background: #2563eb;
-        }
-        pre {
-            background: #1f2937;
-            color: #f9fafb;
-            padding: 15px;
-            border-radius: 6px;
-            overflow-x: auto;
-            font-size: 14px;
-        }
-        .status {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        .status.success { background: #dcfce7; color: #166534; }
-        .status.error { background: #fef2f2; color: #991b1b; }
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .log { margin: 5px 0; padding: 5px; border-left: 3px solid #ccc; }
+        .success { border-color: green; background: #f0fff0; }
+        .error { border-color: red; background: #fff0f0; }
+        .info { border-color: blue; background: #f0f0ff; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 4px; }
     </style>
 </head>
 <body>
-    <h1>🧪 Shelf Taught - Fresh API Test</h1>
-    <p>This page tests the API directly without any cached data to help debug the flashing data issue.</p>
-    
-    <div class="test-section">
-        <h2>🔧 Cache Clearing Instructions</h2>
-        <p><strong>Before testing, clear your browser cache:</strong></p>
-        <ol>
-            <li>Open Developer Tools (F12)</li>
-            <li>Right-click the refresh button</li>
-            <li>Select "Empty Cache and Hard Reload"</li>
-            <li>Or use <kbd>Ctrl+Shift+R</kbd> (Windows/Linux) or <kbd>Cmd+Shift+R</kbd> (Mac)</li>
-        </ol>
-        <p><strong>Alternative:</strong> Open this page in an incognito/private window</p>
-    </div>
-
-    <div class="test-section">
-        <h2>🌐 Production URLs</h2>
-        <p><strong>Frontend:</strong> <a href="https://frontend-new-production-96a4.up.railway.app/" target="_blank">https://frontend-new-production-96a4.up.railway.app/</a></p>
-        <p><strong>Backend API:</strong> <a href="https://shelftaught-production.up.railway.app/api" target="_blank">https://shelftaught-production.up.railway.app/api</a></p>
-    </div>
-
-    <div class="test-section">
-        <h2>🧪 API Tests</h2>
-        <button onclick="testAllEndpoints()">Run All Tests</button>
-        <button onclick="clearResults()">Clear Results</button>
-        <div id="test-results"></div>
-    </div>
-
-    <div class="test-section">
-        <h2>📊 Live Data Preview</h2>
-        <button onclick="loadCurricula()">Load Curricula</button>
-        <button onclick="loadCategories()">Load Categories</button>
-        <div id="data-preview"></div>
-    </div>
+    <h1>Frontend Debug Test (Cache-Busted)</h1>
+    <p>Generated at: 2025-09-22T15:38:38.369Z</p>
+    <div id="logs"></div>
 
     <script>
-        const API_BASE = 'https://shelftaught-production.up.railway.app/api';
-        const FRONTEND_URL = 'https://frontend-new-production-96a4.up.railway.app/';
+        const logs = document.getElementById('logs');
         
         function log(message, type = 'info') {
-            const colors = {
-                success: '#22c55e',
-                error: '#ef4444',
-                warning: '#f59e0b',
-                info: '#3b82f6'
-            };
-            console.log(`%c${message}`, `color: ${colors[type]}`);
-        }
-
-        function addResult(test, status, message, data = null) {
-            const results = document.getElementById('test-results');
             const div = document.createElement('div');
-            div.style.margin = '10px 0';
-            div.style.padding = '10px';
-            div.style.border = '1px solid #e5e7eb';
-            div.style.borderRadius = '6px';
-            
-            const statusClass = status === 'success' ? 'success' : status === 'error' ? 'error' : 'warning';
-            
-            div.innerHTML = `
-                <div><strong>${test}</strong> <span class="status ${statusClass}">${status.toUpperCase()}</span></div>
-                <div style="margin-top: 5px; color: #6b7280;">${message}</div>
-                ${data ? `<pre style="margin-top: 10px; font-size: 12px;">${JSON.stringify(data, null, 2).substring(0, 500)}${JSON.stringify(data, null, 2).length > 500 ? '...' : ''}</pre>` : ''}
-            `;
-            
-            results.appendChild(div);
+            div.className = 'log ' + type;
+            div.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logs.appendChild(div);
+            console.log(message);
         }
 
-        function clearResults() {
-            document.getElementById('test-results').innerHTML = '';
-            document.getElementById('data-preview').innerHTML = '';
-        }
+        // Simulate exact frontend API configuration
+        const hostname = window.location.hostname;
+        const isOnRailway = hostname.includes('railway.app') || 
+                           hostname.includes('frontend-new-production-96a4.up.railway.app');
+        const API_BASE_URL = isOnRailway 
+          ? 'https://shelftaught-production.up.railway.app/api'
+          : 'http://localhost:3001/api';
 
-        async function testEndpoint(name, url, expectData = false) {
+        log(`🔧 Hostname: ${hostname}`, 'info');
+        log(`🔧 Is on Railway: ${isOnRailway}`, 'info');
+        log(`🔧 API Base URL: ${API_BASE_URL}`, 'info');
+
+        // Test the exact HomePage API call with cache busting
+        async function testHomePageCall() {
+            log('🏠 Testing HomePage API call...', 'info');
+            
             try {
-                log(`Testing ${name}: ${url}`, 'info');
+                // Add cache busting parameter
+                const url = `${API_BASE_URL}/curricula?limit=6&sortBy=overallRating&sortOrder=desc&_cb=${Date.now()}`;
+                log(`📡 Calling: ${url}`, 'info');
                 
-                const response = await fetch(url + '?_cb=' + Date.now()); // Cache buster
-                const status = response.status;
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    cache: 'no-cache' // Force no cache
+                });
                 
-                if (status === 200) {
-                    const data = await response.json();
+                log(`📊 Response status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                log(`📦 Response received`, 'success');
+                
+                if (data.success && data.data && data.data.curricula) {
+                    const curricula = data.data.curricula;
+                    log(`✅ Success: Found ${curricula.length} curricula`, 'success');
                     
-                    // Check for mock data indicators
-                    const dataStr = JSON.stringify(data);
-                    const hasMockData = dataStr.includes('mock-') || 
-                                       dataStr.includes('Mock') ||
-                                       dataStr.includes('demo-') ||
-                                       dataStr.includes('placeholder');
-                    
-                    if (hasMockData) {
-                        addResult(name, 'warning', `Status ${status} - Contains mock data indicators`, data);
-                        log(`⚠️ ${name}: Contains mock data`, 'warning');
+                    if (curricula.length > 0) {
+                        const first = curricula[0];
+                        log(`📝 First curriculum: "${first.name}" by ${first.publisher}`, 'success');
+                        
+                        // Test property access
+                        const subjects = first.subjects;
+                        const gradeRange = first.gradeLevel?.ageRange;
+                        
+                        if (subjects && gradeRange) {
+                            log(`✅ Data structure correct: ${subjects.length} subjects, grade: "${gradeRange}"`, 'success');
+                            
+                            // Show what the frontend would render
+                            const curriculumHTML = curricula.map(c => `
+                                <div style="border: 1px solid #ddd; padding: 10px; margin: 10px 0; border-radius: 4px;">
+                                    <h4>${c.name}</h4>
+                                    <p><strong>Publisher:</strong> ${c.publisher}</p>
+                                    <p><strong>Rating:</strong> ${c.overallRating}/5</p>
+                                    <p><strong>Subjects:</strong> ${c.subjects.map(s => s.name).join(', ')}</p>
+                                    <p><strong>Grade Range:</strong> ${c.gradeLevel.ageRange}</p>
+                                    <p><strong>Description:</strong> ${c.description.substring(0, 100)}...</p>
+                                </div>
+                            `).join('');
+                            
+                            document.body.innerHTML += `
+                                <h2>✅ Curricula Data (What Frontend Should Show)</h2>
+                                ${curriculumHTML}
+                            `;
+                        } else {
+                            log(`❌ Data structure issue: subjects=${!!subjects}, gradeRange=${!!gradeRange}`, 'error');
+                        }
                     } else {
-                        addResult(name, 'success', `Status ${status} - Real data confirmed`, expectData ? data : null);
-                        log(`✅ ${name}: Real data confirmed`, 'success');
+                        log(`⚠️ No curricula in response`, 'error');
                     }
                 } else {
-                    const errorData = await response.text();
-                    addResult(name, 'error', `Status ${status}`, { error: errorData });
-                    log(`❌ ${name}: Status ${status}`, 'error');
+                    log(`❌ Invalid response structure`, 'error');
+                    log(`📄 Response: ${JSON.stringify(data, null, 2)}`, 'error');
                 }
-            } catch (error) {
-                addResult(name, 'error', error.message);
-                log(`❌ ${name}: ${error.message}`, 'error');
-            }
-        }
-
-        async function testAllEndpoints() {
-            clearResults();
-            
-            const tests = [
-                { name: 'Health Check', url: 'https://shelftaught-production.up.railway.app/health', expectData: false },
-                { name: 'Curricula', url: `${API_BASE}/curricula`, expectData: true },
-                { name: 'Categories', url: `${API_BASE}/categories`, expectData: true },
-                { name: 'Search', url: `${API_BASE}/search?q=math`, expectData: true }
-            ];
-            
-            for (const test of tests) {
-                await testEndpoint(test.name, test.url, test.expectData);
-                await new Promise(resolve => setTimeout(resolve, 500)); // Small delay between tests
-            }
-            
-            // Test frontend
-            try {
-                const response = await fetch(FRONTEND_URL);
-                if (response.status === 200) {
-                    addResult('Frontend', 'success', `Status ${response.status} - Accessible`);
-                } else {
-                    addResult('Frontend', 'error', `Status ${response.status}`);
-                }
-            } catch (error) {
-                addResult('Frontend', 'error', error.message);
-            }
-        }
-
-        async function loadCurricula() {
-            try {
-                const response = await fetch(`${API_BASE}/curricula?_cb=${Date.now()}`);
-                const data = await response.json();
                 
-                const preview = document.getElementById('data-preview');
-                preview.innerHTML = `
-                    <h3>📚 Curricula Data</h3>
-                    <p><strong>Count:</strong> ${data.curricula ? data.curricula.length : 0}</p>
-                    <pre>${JSON.stringify(data, null, 2)}</pre>
-                `;
             } catch (error) {
-                document.getElementById('data-preview').innerHTML = `<p class="error">Error loading curricula: ${error.message}</p>`;
+                log(`❌ API call failed: ${error.message}`, 'error');
             }
         }
 
-        async function loadCategories() {
-            try {
-                const response = await fetch(`${API_BASE}/categories?_cb=${Date.now()}`);
-                const data = await response.json();
-                
-                const preview = document.getElementById('data-preview');
-                preview.innerHTML = `
-                    <h3>📂 Categories Data</h3>
-                    <p><strong>Count:</strong> ${data.categories ? data.categories.length : 0}</p>
-                    <pre>${JSON.stringify(data, null, 2)}</pre>
-                `;
-            } catch (error) {
-                document.getElementById('data-preview').innerHTML = `<p class="error">Error loading categories: ${error.message}</p>`;
-            }
-        }
-
-        // Auto-run basic test on page load
-        window.addEventListener('load', () => {
-            log('🧪 Fresh API Test Page Loaded', 'info');
-            log('Ready to test API endpoints without cached data', 'info');
-        });
+        // Run test after page loads
+        setTimeout(testHomePageCall, 1000);
     </script>
 </body>
 </html>
