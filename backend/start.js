@@ -34,13 +34,19 @@ if (!fs.existsSync(distPath)) {
         console.log('🗄️ Running database migrations...');
         execSync('npx prisma migrate deploy', { stdio: 'inherit' });
         
-        // Seed the database
-        console.log('🌱 Seeding database...');
+        // Seed the database with comprehensive data
+        console.log('🌱 Seeding database with comprehensive curriculum data...');
         try {
-            execSync('npx prisma db seed', { stdio: 'inherit' });
-            console.log('✅ Database seeded successfully');
+            execSync('npx ts-node prisma/comprehensive-seed.ts', { stdio: 'inherit' });
+            console.log('✅ Database seeded successfully with comprehensive data');
         } catch (seedError) {
-            console.warn('⚠️ Database seeding failed (might already be seeded):', seedError.message);
+            console.warn('⚠️ Database seeding failed, trying regular seed:', seedError.message);
+            try {
+                execSync('npx prisma db seed', { stdio: 'inherit' });
+                console.log('✅ Database seeded with regular seed data');
+            } catch (fallbackError) {
+                console.warn('⚠️ All seeding attempts failed (might already be seeded):', fallbackError.message);
+            }
         }
     } catch (error) {
         console.error('❌ Build process failed:', error.message);
