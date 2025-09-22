@@ -3,6 +3,7 @@ import { ValidationUtils } from '../utils/validation';
 import { NotFoundError, ValidationError } from '../types/errors';
 import { asyncHandler } from '../middleware/errorHandler';
 import DatabaseService from '../services/database';
+import { SlugUtils } from '../utils/slug';
 
 const router = Router();
 
@@ -154,19 +155,20 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
 }));
 
 /**
- * GET /api/curricula/:id
- * Get detailed curriculum information by ID
+ * GET /api/curricula/:slugOrId
+ * Get detailed curriculum information by slug or ID (for backward compatibility)
  */
-router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+router.get('/:slugOrId', asyncHandler(async (req: Request, res: Response) => {
+  const { slugOrId } = req.params;
   const prisma = DatabaseService.getInstance();
   
-  if (!id) {
-    throw new ValidationError('Curriculum ID is required');
+  if (!slugOrId) {
+    throw new ValidationError('Curriculum slug or ID is required');
   }
   
-  const curriculum = await prisma.curriculum.findUnique({
-    where: { id },
+  // Try to find by slug first, then by ID for backward compatibility
+  let curriculum = await prisma.curriculum.findUnique({
+    where: { slug: slugOrId },
     include: {
       gradeLevel: {
         select: {
@@ -190,6 +192,35 @@ router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
       }
     }
   });
+  
+  // If not found by slug, try by ID for backward compatibility
+  if (!curriculum) {
+    curriculum = await prisma.curriculum.findUnique({
+      where: { id: slugOrId },
+      include: {
+        gradeLevel: {
+          select: {
+            id: true,
+            name: true,
+            ageRange: true,
+            minAge: true,
+            maxAge: true
+          }
+        },
+        curriculumSubjects: {
+          include: {
+            subject: {
+              select: {
+                id: true,
+                name: true,
+                description: true
+              }
+            }
+          }
+        }
+      }
+    });
+  }
   
   if (!curriculum) {
     throw new NotFoundError('Curriculum not found');

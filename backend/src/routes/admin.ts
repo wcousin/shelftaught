@@ -4,6 +4,7 @@ import { asyncHandler } from '../middleware/errorHandler';
 import { authenticate, requireAdmin } from '../middleware/auth';
 import { ValidationUtils } from '../utils/validation';
 import DatabaseService from '../services/database';
+import { SlugUtils } from '../utils/slug';
 
 const router = Router();
 
@@ -177,6 +178,16 @@ router.post('/curricula', asyncHandler(async (req: Request, res: Response) => {
     }
   }
 
+  // Generate unique slug
+  const baseSlug = SlugUtils.createCurriculumSlug(name!, publisher!);
+  const slug = await SlugUtils.ensureUniqueSlug(
+    baseSlug,
+    async (checkSlug) => {
+      const existing = await prisma.curriculum.findUnique({ where: { slug: checkSlug } });
+      return !!existing;
+    }
+  );
+
   // Calculate overall rating
   const ratings = [
     targetAgeGradeRating || 0,
@@ -200,6 +211,7 @@ router.post('/curricula', asyncHandler(async (req: Request, res: Response) => {
       publisher: publisher!,
       description: description!,
       imageUrl,
+      slug,
       gradeLevelId: gradeLevelId!,
       targetAgeGradeRating: targetAgeGradeRating || 0,
       teachingApproachStyle: teachingApproachStyle || '',
@@ -332,6 +344,26 @@ router.put('/curricula/:id', asyncHandler(async (req: Request, res: Response) =>
     }
   }
 
+  // Generate new slug if name or publisher changed
+  let slug = existingCurriculum.slug;
+  if (name !== undefined || publisher !== undefined) {
+    const newName = name ?? existingCurriculum.name;
+    const newPublisher = publisher ?? existingCurriculum.publisher;
+    const baseSlug = SlugUtils.createCurriculumSlug(newName, newPublisher);
+    
+    // Only update slug if it would be different
+    if (baseSlug !== existingCurriculum.slug) {
+      slug = await SlugUtils.ensureUniqueSlug(
+        baseSlug,
+        async (checkSlug) => {
+          const existing = await prisma.curriculum.findUnique({ where: { slug: checkSlug } });
+          return !!existing && existing.id !== id;
+        },
+        id
+      );
+    }
+  }
+
   // Calculate overall rating if ratings are provided
   let overallRating = existingCurriculum.overallRating;
   
@@ -356,6 +388,7 @@ router.put('/curricula/:id', asyncHandler(async (req: Request, res: Response) =>
     data: {
       ...(name !== undefined && { name }),
       ...(publisher !== undefined && { publisher }),
+      ...(slug !== existingCurriculum.slug && { slug }),
       ...(description !== undefined && { description }),
       ...(imageUrl !== undefined && { imageUrl }),
       ...(gradeLevelId !== undefined && { gradeLevelId }),

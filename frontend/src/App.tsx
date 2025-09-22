@@ -71,12 +71,12 @@ function App() {
             <Route path="/search" element={
               <SearchPageWithLayout />
             } />
-            <Route path="/curriculum/:id" element={
+            <Route path="/curriculum/:slug/:id" element={
               <Layout>
                 <CurriculumDetailPage />
               </Layout>
             } />
-            <Route path="/curriculum/:id/:slug" element={
+            <Route path="/curriculum/:id" element={
               <Layout>
                 <CurriculumDetailPage />
               </Layout>

@@ -6,6 +6,7 @@ import LazyCurriculumCard from '../components/curriculum/LazyCurriculumCard';
 import SEO from '../components/SEO';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
+import { createCurriculumUrl } from '../utils/url';
 // API response structure (different from detailed Curriculum type)
 interface CurriculumListItem {
   id: string;
@@ -81,8 +82,9 @@ const HomePage: React.FC = () => {
     navigate(`/search?q=${encodeURIComponent(query)}`);
   };
 
-  const handleCurriculumClick = (id: string) => {
-    navigate(`/curriculum/${id}`);
+  const handleCurriculumClick = (curriculum: CurriculumListItem) => {
+    const url = createCurriculumUrl(curriculum.id, curriculum.name, curriculum.publisher);
+    navigate(url);
   };
 
   return (
@@ -187,7 +189,7 @@ const HomePage: React.FC = () => {
                     imageUrl={curriculum.imageUrl}
                     subjects={curriculum.subjects.map(s => s.name)}
                     gradeRange={curriculum.gradeLevel.ageRange}
-                    onClick={() => handleCurriculumClick(curriculum.id)}
+                    onClick={() => handleCurriculumClick(curriculum)}
                   />
                 ) : (
                   <LazyCurriculumCard
@@ -200,7 +202,7 @@ const HomePage: React.FC = () => {
                     imageUrl={curriculum.imageUrl}
                     subjects={curriculum.subjects.map(s => s.name)}
                     gradeRange={curriculum.gradeLevel.ageRange}
-                    onClick={() => handleCurriculumClick(curriculum.id)}
+                    onClick={() => handleCurriculumClick(curriculum)}
                   />
                 )
               ))}

@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { AuthUtils } from '../src/utils/auth';
+import { SlugUtils } from '../src/utils/slug';
 
 const prisma = new PrismaClient();
 
@@ -119,6 +120,7 @@ async function main() {
     data: {
       name: 'Logic of English Foundations',
       publisher: 'Logic of English',
+      slug: SlugUtils.createCurriculumSlug('Logic of English Foundations', 'Logic of English'),
       description: 'A comprehensive phonics and spelling program that teaches the logic behind English spelling and reading through multi-sensory methods.',
       gradeLevelId: elementary.id,
       targetAgeGradeRating: 5,
@@ -180,6 +182,7 @@ async function main() {
     data: {
       name: 'Math-U-See',
       publisher: 'Math-U-See',
+      slug: SlugUtils.createCurriculumSlug('Math-U-See', 'Math-U-See'),
       description: 'A mastery-based math curriculum using manipulatives and visual learning methods.',
       gradeLevelId: elementary.id,
       targetAgeGradeRating: 5,
@@ -239,6 +242,7 @@ async function main() {
     data: {
       name: 'Sonlight Core A',
       publisher: 'Sonlight Curriculum',
+      slug: SlugUtils.createCurriculumSlug('Sonlight Core A', 'Sonlight Curriculum'),
       description: 'Literature-based curriculum covering history, geography, and language arts through living books.',
       gradeLevelId: elementary.id,
       targetAgeGradeRating: 4,

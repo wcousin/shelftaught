@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../services/api';
+import { createCurriculumUrl } from '../../utils/url';
 
 interface SavedCurriculum {
   id: string;
@@ -105,7 +106,7 @@ export const SavedCurriculumCard: React.FC<SavedCurriculumCardProps> = ({
           <div className="flex justify-between items-start mb-2">
             <div>
               <Link
-                to={`/curriculum/${curriculum.id}`}
+                to={createCurriculumUrl(curriculum.id, curriculum.name, curriculum.publisher)}
                 className="text-lg font-semibold text-gray-900 hover:text-blue-600"
               >
                 {curriculum.name}

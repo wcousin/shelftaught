@@ -57,6 +57,7 @@ model Curriculum {
   publisher   String
   description String
   imageUrl    String?
+  slug        String   @unique // SEO-friendly URL slug
   
   // Target Age/Grade
   gradeLevelId String

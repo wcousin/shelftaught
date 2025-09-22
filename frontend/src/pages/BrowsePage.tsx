@@ -4,6 +4,7 @@ import CurriculumCard from '../components/curriculum/CurriculumCard';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../services/api';
 import type { SearchParams } from '../types';
+import { createCurriculumUrl } from '../utils/url';
 
 // API response structure (different from detailed Curriculum type)
 interface CurriculumListItem {
@@ -132,8 +133,9 @@ const BrowsePage: React.FC<BrowsePageProps> = ({ onFiltersChange }) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleCurriculumClick = (id: string) => {
-    navigate(`/curriculum/${id}`);
+  const handleCurriculumClick = (curriculum: CurriculumListItem) => {
+    const url = createCurriculumUrl(curriculum.id, curriculum.name, curriculum.publisher);
+    navigate(url);
   };
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
@@ -207,7 +209,7 @@ const BrowsePage: React.FC<BrowsePageProps> = ({ onFiltersChange }) => {
                   imageUrl={curriculum.imageUrl}
                   subjects={curriculum.subjects.map(s => s.name)}
                   gradeRange={curriculum.gradeLevel.ageRange}
-                  onClick={() => handleCurriculumClick(curriculum.id)}
+                  onClick={() => handleCurriculumClick(curriculum)}
                 />
               ))}
             </div>

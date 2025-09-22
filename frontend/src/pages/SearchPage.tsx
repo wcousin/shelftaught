@@ -5,6 +5,7 @@ import SearchBar from '../components/forms/SearchBar';
 import CurriculumCard from '../components/curriculum/CurriculumCard';
 import { api } from '../services/api';
 import type { SearchParams } from '../types';
+import { createCurriculumUrl } from '../utils/url';
 
 // API response structure (different from detailed Curriculum type)
 interface CurriculumListItem {
@@ -161,8 +162,9 @@ const SearchPage: React.FC<SearchPageProps> = ({ onFiltersChange, searchQuery: p
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleCurriculumClick = (id: string) => {
-    navigate(`/curriculum/${id}`);
+  const handleCurriculumClick = (curriculum: CurriculumListItem) => {
+    const url = createCurriculumUrl(curriculum.id, curriculum.name, curriculum.publisher);
+    navigate(url);
   };
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
@@ -272,7 +274,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ onFiltersChange, searchQuery: p
                   imageUrl={curriculum.imageUrl}
                   subjects={curriculum.subjects.map(s => s.name)}
                   gradeRange={curriculum.gradeLevel.ageRange}
-                  onClick={() => handleCurriculumClick(curriculum.id)}
+                  onClick={() => handleCurriculumClick(curriculum)}
                 />
               ))}
             </div>
