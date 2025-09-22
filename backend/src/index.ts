@@ -32,8 +32,8 @@ const config = Environment.getConfig();
 
 const app = express();
 
-// Configure trust proxy for Railway deployment
-app.set('trust proxy', true);
+// Configure trust proxy for Railway deployment (specific to Railway's infrastructure)
+app.set('trust proxy', 1);
 
 // Simple health check (before any middleware)
 app.get('/health', (req, res) => {

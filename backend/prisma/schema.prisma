@@ -57,7 +57,7 @@ model Curriculum {
   publisher   String
   description String
   imageUrl    String?
-  slug        String?  @unique // SEO-friendly URL slug (optional during migration)
+  // slug        String?  @unique // SEO-friendly URL slug (temporarily disabled until migration)
   
   // Target Age/Grade
   gradeLevelId String

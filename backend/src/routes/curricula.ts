@@ -3,7 +3,7 @@ import { ValidationUtils } from '../utils/validation';
 import { NotFoundError, ValidationError } from '../types/errors';
 import { asyncHandler } from '../middleware/errorHandler';
 import DatabaseService from '../services/database';
-import { SlugUtils } from '../utils/slug';
+// import { SlugUtils } from '../utils/slug'; // Temporarily disabled
 
 const router = Router();
 

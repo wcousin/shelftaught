@@ -4,7 +4,7 @@ import { asyncHandler } from '../middleware/errorHandler';
 import { authenticate, requireAdmin } from '../middleware/auth';
 import { ValidationUtils } from '../utils/validation';
 import DatabaseService from '../services/database';
-import { SlugUtils } from '../utils/slug';
+// import { SlugUtils } from '../utils/slug'; // Temporarily disabled
 
 const router = Router();
 
