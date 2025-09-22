@@ -25,7 +25,7 @@ export const SaveCurriculumButton: React.FC<SaveCurriculumButtonProps> = ({
   const checkIfSaved = async () => {
     try {
       const response = await api.getSavedCurricula();
-      const savedCurricula = response.data.savedCurricula;
+      const savedCurricula = response.data.data?.savedCurricula || [];
       const saved = savedCurricula.find(
         (item: any) => item.curriculum.id === curriculumId
       );
@@ -58,7 +58,7 @@ export const SaveCurriculumButton: React.FC<SaveCurriculumButtonProps> = ({
         // Add to saved
         const response = await api.saveCurriculum(curriculumId);
         setIsSaved(true);
-        setSavedId(response.data.savedCurriculum.id);
+        setSavedId(response.data.data?.savedCurriculum?.id);
       }
     } catch (error) {
       console.error('Failed to toggle save status:', error);

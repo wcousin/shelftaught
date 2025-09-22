@@ -75,7 +75,7 @@ const UserDashboard: React.FC = () => {
         throw new Error('Invalid API response structure');
       }
       
-      const curricula = response.data.savedCurricula || [];
+      const curricula = response.data.data?.savedCurricula || [];
       console.log('📚 Saved curricula data:', curricula);
       console.log('📊 Curricula count:', curricula.length);
       

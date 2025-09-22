@@ -24,7 +24,7 @@ const CurriculumDetailPage: React.FC = () => {
     const fetchCurriculum = async () => {
       try {
         const response = await api.getCurriculumById(id);
-        setCurriculum(response.data.curriculum || response.data.data);
+        setCurriculum(response.data.data?.curriculum);
       } catch (err: any) {
         setError(err.response?.data?.error?.message || 'Failed to load curriculum');
       } finally {

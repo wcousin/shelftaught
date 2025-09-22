@@ -24,7 +24,7 @@ const ComparisonPage: React.FC = () => {
       try {
         const promises = ids.map(id => api.getCurriculumById(id));
         const responses = await Promise.all(promises);
-        const curriculaData = responses.map(response => response.data.curriculum || response.data.data);
+        const curriculaData = responses.map(response => response.data.data?.curriculum);
         setCurricula(curriculaData);
       } catch (err: any) {
         setError('Failed to load curricula for comparison');
