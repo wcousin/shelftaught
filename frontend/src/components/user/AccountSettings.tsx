@@ -1,28 +1,60 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { api } from '../../services/api';
 
 export const AccountSettings: React.FC = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
-    email: user?.email || '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement profile update API call
-    console.log('Profile update:', formData);
-    setIsEditing(false);
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      console.log('🔄 Updating profile:', formData);
+      const response = await api.put('/user/profile', {
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+      });
+
+      if (response.data.success) {
+        console.log('✅ Profile updated successfully:', response.data.data.user);
+        
+        // Update the user context with the new data
+        updateUser(response.data.data.user);
+        
+        setSuccess('Profile updated successfully!');
+        setIsEditing(false);
+        
+        // Clear success message after 3 seconds
+        setTimeout(() => setSuccess(null), 3000);
+      } else {
+        throw new Error(response.data.error?.message || 'Failed to update profile');
+      }
+    } catch (err: any) {
+      console.error('❌ Profile update error:', err);
+      setError(err.response?.data?.error?.message || err.message || 'Failed to update profile');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancel = () => {
     setFormData({
       firstName: user?.firstName || '',
       lastName: user?.lastName || '',
-      email: user?.email || '',
     });
+    setError(null);
+    setSuccess(null);
     setIsEditing(false);
   };
 
@@ -44,6 +76,18 @@ export const AccountSettings: React.FC = () => {
           </button>
         )}
       </div>
+
+      {error && (
+        <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+          {error}
+        </div>
+      )}
+
+      {success && (
+        <div className="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
+          {success}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -89,13 +133,13 @@ export const AccountSettings: React.FC = () => {
               type="email"
               id="email"
               name="email"
-              value={formData.email}
-              onChange={handleChange}
-              disabled={!isEditing}
-              className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                isEditing ? 'border-gray-300' : 'border-gray-200 bg-gray-50'
-              }`}
+              value={user?.email || ''}
+              disabled={true}
+              className="w-full px-3 py-2 border border-gray-200 bg-gray-50 rounded-md shadow-sm text-gray-500 cursor-not-allowed"
             />
+            <p className="text-xs text-gray-500 mt-1">
+              Email address cannot be changed for security reasons
+            </p>
           </div>
         </div>
 
@@ -110,9 +154,17 @@ export const AccountSettings: React.FC = () => {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              disabled={loading}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
             >
-              Save Changes
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Saving...
+                </>
+              ) : (
+                'Save Changes'
+              )}
             </button>
           </div>
         )}

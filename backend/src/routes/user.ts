@@ -150,6 +150,54 @@ router.post('/saved', authenticate, asyncHandler(async (req: Request, res: Respo
 }));
 
 /**
+ * PUT /api/user/profile
+ * Update user profile information
+ */
+router.put('/profile', authenticate, asyncHandler(async (req: Request, res: Response) => {
+  const { firstName, lastName } = req.body;
+
+  // Validate request
+  if (!firstName || typeof firstName !== 'string' || firstName.trim().length === 0) {
+    throw new ValidationError('First name is required');
+  }
+
+  if (!lastName || typeof lastName !== 'string' || lastName.trim().length === 0) {
+    throw new ValidationError('Last name is required');
+  }
+
+  if (firstName.length > 50) {
+    throw new ValidationError('First name cannot exceed 50 characters');
+  }
+
+  if (lastName.length > 50) {
+    throw new ValidationError('Last name cannot exceed 50 characters');
+  }
+
+  const prisma = DatabaseService.getInstance();
+
+  // Update user profile
+  const updatedUser = await prisma.user.update({
+    where: { id: req.user!.id },
+    data: {
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+    },
+    select: {
+      id: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+      role: true,
+      createdAt: true,
+    },
+  });
+
+  res.success({
+    user: updatedUser,
+  }, 'Profile updated successfully');
+}));
+
+/**
  * DELETE /api/user/saved/:id
  * Remove a curriculum from user's saved list
  */

@@ -22,13 +22,15 @@ type AuthAction =
   | { type: 'LOGIN_SUCCESS'; payload: User }
   | { type: 'LOGIN_FAILURE'; payload: string }
   | { type: 'LOGOUT' }
-  | { type: 'CLEAR_ERROR' };
+  | { type: 'CLEAR_ERROR' }
+  | { type: 'UPDATE_USER'; payload: User };
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
   register: (userData: { email: string; password: string; firstName: string; lastName: string }) => Promise<void>;
   logout: () => void;
   clearError: () => void;
+  updateUser: (user: User) => void;
 }
 
 // Initial state
@@ -75,6 +77,11 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
       return {
         ...state,
         error: null,
+      };
+    case 'UPDATE_USER':
+      return {
+        ...state,
+        user: action.payload,
       };
     default:
       return state;
@@ -158,12 +165,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     dispatch({ type: 'CLEAR_ERROR' });
   };
 
+  const updateUser = (user: User) => {
+    localStorage.setItem('userData', JSON.stringify(user));
+    dispatch({ type: 'UPDATE_USER', payload: user });
+  };
+
   const value: AuthContextType = {
     ...state,
     login,
     register,
     logout,
     clearError,
+    updateUser,
   };
 
   return (
