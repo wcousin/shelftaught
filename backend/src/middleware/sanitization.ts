@@ -42,19 +42,28 @@ export const sanitizeInput = (req: Request, res: Response, next: NextFunction): 
  */
 export const xssProtection = (req: Request, res: Response, next: NextFunction): void => {
   // Basic XSS protection by escaping HTML characters in string values
-  const sanitizeValue = (value: any): any => {
+  const sanitizeValue = (value: any, key?: string): any => {
     if (typeof value === 'string') {
-      return value
+      // Don't encode slashes in URL fields (imageUrl, etc.)
+      const isUrlField = key && (key.toLowerCase().includes('url') || key.toLowerCase().includes('image'));
+      
+      let sanitized = value
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#x27;')
-        .replace(/\//g, '&#x2F;');
+        .replace(/'/g, '&#x27;');
+      
+      // Only encode slashes if it's not a URL field
+      if (!isUrlField) {
+        sanitized = sanitized.replace(/\//g, '&#x2F;');
+      }
+      
+      return sanitized;
     }
     if (typeof value === 'object' && value !== null) {
       const sanitized: any = Array.isArray(value) ? [] : {};
       for (const key in value) {
-        sanitized[key] = sanitizeValue(value[key]);
+        sanitized[key] = sanitizeValue(value[key], key);
       }
       return sanitized;
     }
