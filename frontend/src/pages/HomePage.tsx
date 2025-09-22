@@ -56,10 +56,11 @@ const HomePage: React.FC = () => {
         
         console.log('🏠 HomePage: API response received:', response);
         console.log('🏠 HomePage: Response data:', response.data);
-        console.log('🏠 HomePage: Curricula array:', response.data.curricula);
-        console.log('🏠 HomePage: Curricula length:', response.data.curricula?.length);
+        console.log('🏠 HomePage: Response data.data:', response.data.data);
+        console.log('🏠 HomePage: Curricula array:', response.data.data?.curricula);
+        console.log('🏠 HomePage: Curricula length:', response.data.data?.curricula?.length);
         
-        const curricula = response.data.curricula || [];
+        const curricula = response.data.data?.curricula || [];
         console.log('🏠 HomePage: Setting curricula state:', curricula);
         setFeaturedCurricula(curricula);
         
