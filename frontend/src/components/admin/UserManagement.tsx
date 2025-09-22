@@ -6,7 +6,7 @@ interface User {
   email: string;
   firstName: string;
   lastName: string;
-  role: 'user' | 'admin';
+  role: 'USER' | 'ADMIN' | 'user' | 'admin'; // Handle both formats
   createdAt: string;
   _count?: {
     savedCurricula: number;
@@ -21,6 +21,16 @@ const UserManagement: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [roleFilter, setRoleFilter] = useState<'all' | 'user' | 'admin'>('all');
+
+  // Helper function to normalize role display
+  const normalizeRole = (role: string): 'user' | 'admin' => {
+    return role.toLowerCase() as 'user' | 'admin';
+  };
+
+  // Helper function to get display role
+  const getDisplayRole = (role: string): string => {
+    return role.toLowerCase();
+  };
 
   const fetchUsers = async (page = 1, search = '', role = 'all') => {
     try {
@@ -37,6 +47,7 @@ const UserManagement: React.FC = () => {
       });
       
       if (response.data.success) {
+        console.log('🔍 UserManagement - Users data:', response.data.data.users);
         setUsers(response.data.data.users);
         setTotalPages(response.data.data.pagination.totalPages);
         setCurrentPage(page);
@@ -65,9 +76,13 @@ const UserManagement: React.FC = () => {
 
   const handleRoleChange = async (userId: string, newRole: 'user' | 'admin') => {
     try {
-      await api.put(`/admin/users/${userId}`, { role: newRole });
+      // Convert to uppercase for API
+      const apiRole = newRole.toUpperCase();
+      console.log('🔄 UserManagement - Updating role:', { userId, newRole, apiRole });
+      await api.put(`/admin/users/${userId}`, { role: apiRole });
       await fetchUsers(currentPage, searchTerm, roleFilter);
     } catch (err: any) {
+      console.error('❌ UserManagement - Role update error:', err);
       setError(err.response?.data?.error?.message || 'Failed to update user role');
     }
   };
@@ -208,10 +223,10 @@ const UserManagement: React.FC = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <select
-                              value={user.role}
+                              value={getDisplayRole(user.role)}
                               onChange={(e) => handleRoleChange(user.id, e.target.value as 'user' | 'admin')}
                               className={`text-sm rounded-full px-2 py-1 font-semibold ${
-                                user.role === 'admin'
+                                normalizeRole(user.role) === 'admin'
                                   ? 'bg-purple-100 text-purple-800'
                                   : 'bg-green-100 text-green-800'
                               }`}
