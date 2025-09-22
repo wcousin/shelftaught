@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../services/api';
 import { SavedCurriculumCard } from '../components/user/SavedCurriculumCard';
@@ -40,13 +39,9 @@ const UserDashboard: React.FC = () => {
   console.log('🔍 UserDashboard - User role check:', user?.role);
   console.log('🔍 UserDashboard - Is admin?', user?.role === 'ADMIN' || user?.role === 'admin');
   
-  // Redirect admin users to admin panel
-  if (user?.role === 'ADMIN' || user?.role === 'admin') {
-    console.log('🔄 Redirecting admin user to admin panel, role:', user?.role);
-    return <Navigate to="/admin" replace />;
-  }
-  
-  console.log('✅ UserDashboard - Not redirecting, continuing with dashboard');
+  // Allow both users and admins to access the user dashboard
+  // Admins can access both user dashboard and admin panel
+  console.log('✅ UserDashboard - Allowing access to user dashboard');
 
   useEffect(() => {
     console.log('🔍 UserDashboard mounted, user:', user);
