@@ -4,7 +4,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import SearchBar from '../components/forms/SearchBar';
 import CurriculumCard from '../components/curriculum/CurriculumCard';
 import { api } from '../services/api';
-import type { Curriculum, SearchParams } from '../types';
+import type { SearchParams } from '../types';
 
 // API response structure (different from detailed Curriculum type)
 interface CurriculumListItem {

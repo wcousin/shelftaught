@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import CurriculumCard from '../components/curriculum/CurriculumCard';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../services/api';
-import type { Curriculum, SearchParams } from '../types';
+import type { SearchParams } from '../types';
 
 // API response structure (different from detailed Curriculum type)
 interface CurriculumListItem {

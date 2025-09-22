@@ -6,8 +6,6 @@ import LazyCurriculumCard from '../components/curriculum/LazyCurriculumCard';
 import SEO from '../components/SEO';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
-import type { Curriculum } from '../types';
-
 // API response structure (different from detailed Curriculum type)
 interface CurriculumListItem {
   id: string;
