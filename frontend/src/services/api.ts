@@ -1,10 +1,10 @@
 import axios, { type AxiosInstance, type AxiosResponse } from 'axios';
 import { cache } from '../utils/cache';
 import { measureAsync } from '../utils/performance';
-import { mockApiResponses } from './mockData';
 
 // API Configuration - Force production API when on Railway
-const isOnRailway = window.location.hostname.includes('railway.app');
+const isOnRailway = window.location.hostname.includes('railway.app') || 
+                   window.location.hostname.includes('frontend-new-production-96a4.up.railway.app');
 const API_BASE_URL = isOnRailway 
   ? 'https://shelftaught-production.up.railway.app/api'
   : (import.meta.env.VITE_API_URL || 'http://localhost:3001/api');
@@ -62,7 +62,7 @@ const createCacheKey = (endpoint: string, params?: any): string => {
   return `${endpoint}${paramString}`;
 };
 
-// Helper function for cached GET requests with fallback to mock data
+// Helper function for cached GET requests - NO MOCK FALLBACKS
 const cachedGet = async (endpoint: string, params?: any, ttl?: number): Promise<AxiosResponse> => {
   const cacheKey = createCacheKey(endpoint, params);
   
@@ -72,112 +72,30 @@ const cachedGet = async (endpoint: string, params?: any, ttl?: number): Promise<
     return Promise.resolve(cachedData);
   }
   
-  try {
-    // Make API request with performance monitoring
-    const response = await measureAsync(
-      `api-${endpoint.replace(/\//g, '-')}`,
-      () => apiClient.get(endpoint, { params })
-    );
-    
-    // Cache the response (default 5 minutes, longer for static data)
-    cache.set(cacheKey, response, ttl);
-    
-    return response;
-  } catch (error) {
-    console.warn(`API request failed for ${endpoint}, using mock data:`, error);
-    
-    // Fallback to mock data
-    let mockResponse;
-    
-    if (endpoint === '/curricula') {
-      mockResponse = mockApiResponses.getCurricula(params);
-    } else if (endpoint.startsWith('/curricula/')) {
-      const id = endpoint.split('/')[2];
-      mockResponse = mockApiResponses.getCurriculumById(id);
-    } else if (endpoint === '/search') {
-      mockResponse = mockApiResponses.searchCurricula(params?.q || '', params);
-    } else if (endpoint === '/categories') {
-      mockResponse = mockApiResponses.getCategories();
-    } else {
-      // Generic fallback
-      mockResponse = { data: { success: false, error: 'Endpoint not available in mock mode' } };
-    }
-    
-    // Cache mock response briefly
-    cache.set(cacheKey, mockResponse, 30 * 1000); // 30 seconds
-    
-    return Promise.resolve(mockResponse as AxiosResponse);
+  // Add cache-busting parameter for first-time loads
+  const requestParams = { ...params };
+  if (!cachedData) {
+    requestParams._cb = CACHE_BUSTER;
   }
+  
+  // Make API request with performance monitoring
+  const response = await measureAsync(
+    `api-${endpoint.replace(/\//g, '-')}`,
+    () => apiClient.get(endpoint, { params: requestParams })
+  );
+  
+  // Cache the response (default 5 minutes, longer for static data)
+  cache.set(cacheKey, response, ttl);
+  
+  return response;
 };
 
-// Mock authentication functions
-const mockAuth = {
-  login: async (credentials: { email: string; password: string }) => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Mock validation
-    if (!credentials.email || !credentials.password) {
-      throw new Error('Email and password are required');
-    }
-    
-    // Mock successful login
-    const mockUser = {
-      id: '1',
-      email: credentials.email,
-      firstName: 'Demo',
-      lastName: 'User',
-      role: 'user' as const
-    };
-    
-    const mockToken = 'mock-jwt-token-' + Date.now();
-    
-    return {
-      data: {
-        success: true,
-        data: {
-          token: mockToken,
-          user: mockUser
-        }
-      }
-    };
-  },
-  
-  register: async (userData: { email: string; password: string; firstName: string; lastName: string }) => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Mock validation
-    if (!userData.email || !userData.password || !userData.firstName || !userData.lastName) {
-      throw new Error('All fields are required');
-    }
-    
-    if (userData.password.length < 6) {
-      throw new Error('Password must be at least 6 characters long');
-    }
-    
-    // Mock successful registration
-    const mockUser = {
-      id: '1',
-      email: userData.email,
-      firstName: userData.firstName,
-      lastName: userData.lastName,
-      role: 'user' as const
-    };
-    
-    const mockToken = 'mock-jwt-token-' + Date.now();
-    
-    return {
-      data: {
-        success: true,
-        data: {
-          token: mockToken,
-          user: mockUser
-        }
-      }
-    };
-  }
-};
+// Clear any existing cache on startup to prevent stale mock data
+cache.clear();
+console.log('🧹 Cleared API cache to prevent stale data');
+
+// Add cache-busting parameter for initial load
+const CACHE_BUSTER = Date.now();
 
 // API service functions
 export const api = {
@@ -200,193 +118,56 @@ export const api = {
   getCategories: () => 
     cachedGet('/categories', undefined, 30 * 60 * 1000), // 30 minutes cache
 
-  // Auth endpoints - now working with real backend!
+  // Auth endpoints
   login: async (credentials: { email: string; password: string }) => {
     return await apiClient.post('/auth/login', credentials);
   },
   
   register: async (userData: { email: string; password: string; firstName: string; lastName: string }) => {
-    try {
-      return await apiClient.post('/auth/register', userData);
-    } catch (error) {
-      console.warn('Register API failed, using mock authentication:', error);
-      return await mockAuth.register(userData);
-    }
+    return await apiClient.post('/auth/register', userData);
   },
 
-  // User endpoints with mock fallback
+  // User endpoints
   getSavedCurricula: async () => {
-    try {
-      return await apiClient.get('/user/saved');
-    } catch (error) {
-      console.warn('getSavedCurricula API failed, using mock data:', error);
-      // Create mock saved curricula data
-      const mockSavedCurricula = [
-        {
-          id: 'saved-1',
-          personalNotes: 'Great for visual learners. My kids love the colorful illustrations.',
-          savedAt: '2024-01-15T10:30:00Z',
-          curriculum: {
-            id: '1',
-            name: 'Saxon Math',
-            publisher: 'Saxon Publishers',
-            description: 'A comprehensive math curriculum that uses incremental development and continual review.',
-            imageUrl: '/images/placeholder.svg',
-            overallRating: 4.1,
-            gradeLevel: {
-              name: 'K-12'
-            },
-            subjects: [
-              { name: 'Mathematics' }
-            ],
-            teachingApproachStyle: 'Traditional',
-            costPriceRange: '$$',
-            timeCommitmentDailyMinutes: 45
-          }
-        },
-        {
-          id: 'saved-2',
-          personalNotes: 'Perfect for our family. The self-paced approach works well.',
-          savedAt: '2024-01-10T14:20:00Z',
-          curriculum: {
-            id: '2',
-            name: 'Teaching Textbooks',
-            publisher: 'Teaching Textbooks',
-            description: 'Self-teaching math curriculum with automated grading and built-in help system.',
-            imageUrl: '/images/placeholder.svg',
-            overallRating: 4.3,
-            gradeLevel: {
-              name: '3-12'
-            },
-            subjects: [
-              { name: 'Mathematics' }
-            ],
-            teachingApproachStyle: 'Self-Directed',
-            costPriceRange: '$$',
-            timeCommitmentDailyMinutes: 30
-          }
-        }
-      ];
-      
-      return {
-        data: {
-          success: true,
-          savedCurricula: mockSavedCurricula
-        }
-      };
-    }
+    return await apiClient.get('/user/saved');
   },
   
   saveCurriculum: async (curriculumId: string, personalNotes?: string) => {
-    try {
-      return await apiClient.post('/user/saved', { curriculumId, personalNotes });
-    } catch (error) {
-      console.warn('saveCurriculum API failed, using mock response:', error);
-      return {
-        data: {
-          success: true,
-          data: {
-            id: 'mock-saved-' + Date.now(),
-            curriculumId,
-            personalNotes,
-            savedAt: new Date().toISOString()
-          }
-        }
-      };
-    }
+    return await apiClient.post('/user/saved', { curriculumId, personalNotes });
   },
   
   removeSavedCurriculum: async (id: string) => {
-    try {
-      return await apiClient.delete(`/user/saved/${id}`);
-    } catch (error) {
-      console.warn('removeSavedCurriculum API failed, using mock response:', error);
-      return {
-        data: {
-          success: true,
-          message: 'Curriculum removed from saved list'
-        }
-      };
-    }
+    return await apiClient.delete(`/user/saved/${id}`);
   },
 
-  // Admin endpoints with mock fallback
+  // Admin endpoints
   createCurriculum: async (curriculumData: any) => {
-    try {
-      return await apiClient.post('/admin/curricula', curriculumData);
-    } catch (error) {
-      console.warn('createCurriculum API failed, using mock response:', error);
-      return {
-        data: {
-          success: true,
-          data: {
-            id: 'mock-curriculum-' + Date.now(),
-            ...curriculumData,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          }
-        }
-      };
-    }
+    return await apiClient.post('/admin/curricula', curriculumData);
   },
   
   updateCurriculum: async (id: string, curriculumData: any) => {
-    try {
-      return await apiClient.put(`/admin/curricula/${id}`, curriculumData);
-    } catch (error) {
-      console.warn('updateCurriculum API failed, using mock response:', error);
-      return {
-        data: {
-          success: true,
-          data: {
-            id,
-            ...curriculumData,
-            updatedAt: new Date().toISOString()
-          }
-        }
-      };
-    }
+    return await apiClient.put(`/admin/curricula/${id}`, curriculumData);
   },
   
   deleteCurriculum: async (id: string) => {
-    try {
-      return await apiClient.delete(`/admin/curricula/${id}`);
-    } catch (error) {
-      console.warn('deleteCurriculum API failed, using mock response:', error);
-      return {
-        data: {
-          success: true,
-          message: 'Curriculum deleted successfully'
-        }
-      };
-    }
+    return await apiClient.delete(`/admin/curricula/${id}`);
   },
   
   getAnalytics: async () => {
-    try {
-      return await apiClient.get('/admin/analytics');
-    } catch (error) {
-      console.warn('getAnalytics API failed, using mock data:', error);
-      return {
-        data: {
-          success: true,
-          data: {
-            totalCurricula: 6,
-            totalUsers: 150,
-            totalReviews: 89,
-            popularSubjects: ['Mathematics', 'Science', 'Literature'],
-            recentActivity: []
-          }
-        }
-      };
-    }
+    return await apiClient.get('/admin/analytics');
   },
 
-  // Generic HTTP methods for admin components - use real backend API
+  // Generic HTTP methods for admin components
   get: (url: string, config?: any) => apiClient.get(url, config),
   post: (url: string, data?: any, config?: any) => apiClient.post(url, data, config),
   put: (url: string, data?: any, config?: any) => apiClient.put(url, data, config),
   delete: (url: string, config?: any) => apiClient.delete(url, config),
+
+  // Cache management
+  clearCache: () => {
+    cache.clear();
+    console.log('🧹 API cache cleared');
+  },
 };
 
 export default apiClient;
