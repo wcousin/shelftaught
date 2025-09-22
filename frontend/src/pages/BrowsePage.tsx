@@ -56,8 +56,8 @@ const BrowsePage: React.FC<BrowsePageProps> = ({ onFiltersChange }) => {
       };
 
       const response = await api.getCurricula(params);
-      setCurricula(response.data.data || []);
-      setTotalCount(response.data.total || 0);
+      setCurricula(response.data.curricula || []);
+      setTotalCount(response.data.pagination?.totalItems || 0);
     } catch (err) {
       console.error('Error fetching curricula:', err);
       setError('Failed to load curricula');

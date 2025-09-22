@@ -21,10 +21,10 @@ const HomePage: React.FC = () => {
         setError(null);
         const response = await api.getCurricula({ 
           limit: 6, 
-          sortBy: 'rating', 
+          sortBy: 'overallRating', 
           sortOrder: 'desc' 
         });
-        setFeaturedCurricula(response.data.data || []);
+        setFeaturedCurricula(response.data.curricula || []);
       } catch (err) {
         console.error('Error fetching featured curricula:', err);
         setError('Failed to load featured curricula');
