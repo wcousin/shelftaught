@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
-import type { Curriculum, Subject, GradeLevel } from '../../types';
+import type { Subject, GradeLevel } from '../../types';
 
 interface ReviewFormProps {
-  curriculum?: Curriculum | null;
+  curriculum?: any | null; // Can be either full Curriculum or partial admin data
   onSuccess: () => void;
   onCancel: () => void;
 }
@@ -93,9 +93,31 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ curriculum, onSuccess, onCancel
   useEffect(() => {
     fetchCategories();
     if (curriculum) {
-      populateForm(curriculum);
+      // If we have a curriculum ID but limited data, fetch full details
+      if (curriculum.id && !curriculum.targetAgeGrade && !curriculum.targetAgeGradeRating) {
+        fetchFullCurriculumDetails(curriculum.id);
+      } else {
+        populateForm(curriculum);
+      }
     }
   }, [curriculum]);
+
+  const fetchFullCurriculumDetails = async (curriculumId: string) => {
+    try {
+      setLoading(true);
+      const response = await api.get(`/curricula/${curriculumId}`);
+      if (response.data.success) {
+        populateForm(response.data.data.curriculum);
+      } else {
+        setError('Failed to load curriculum details');
+      }
+    } catch (err: any) {
+      setError('Failed to load curriculum details');
+      console.error('Error fetching curriculum details:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchCategories = async () => {
     try {
@@ -109,47 +131,53 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ curriculum, onSuccess, onCancel
     }
   };
 
-  const populateForm = (curr: Curriculum) => {
+  const populateForm = (curr: any) => {
+    console.log('🔍 ReviewForm - Populating form with curriculum data:', curr);
+    
+    // Handle both nested (from public API) and flat (from admin API) structures
+    const isFlat = 'targetAgeGradeRating' in curr;
+    console.log('📊 ReviewForm - Data structure is flat:', isFlat);
+    
     setFormData({
       name: curr.name,
       publisher: curr.publisher,
       description: curr.description,
       imageUrl: curr.imageUrl || '',
-      gradeLevelId: '', // This would need to be fetched from the curriculum data
-      targetAgeGradeRating: curr.targetAgeGrade.rating,
-      teachingApproachStyle: curr.teachingApproach.style,
-      teachingApproachDescription: curr.teachingApproach.description,
-      teachingApproachRating: curr.teachingApproach.rating,
-      subjectIds: [], // This would need to be mapped from curriculum subjects
-      subjectComprehensiveness: curr.subjectsCovered.comprehensiveness,
-      subjectsCoveredRating: curr.subjectsCovered.rating,
-      materialsComponents: curr.materialsIncluded.components,
-      materialsCompleteness: curr.materialsIncluded.completeness,
-      materialsIncludedRating: curr.materialsIncluded.rating,
-      instructionStyleType: curr.instructionStyle.type,
-      instructionSupportLevel: curr.instructionStyle.supportLevel,
-      instructionStyleRating: curr.instructionStyle.rating,
-      timeCommitmentDailyMinutes: curr.timeCommitment.dailyMinutes,
-      timeCommitmentWeeklyHours: curr.timeCommitment.weeklyHours,
-      timeCommitmentFlexibility: curr.timeCommitment.flexibility,
-      timeCommitmentRating: curr.timeCommitment.rating,
-      costPriceRange: curr.cost.priceRange,
-      costValue: curr.cost.value,
-      costRating: curr.cost.rating,
-      strengths: curr.strengths,
-      weaknesses: curr.weaknesses,
-      bestFor: curr.bestFor,
-      availabilityInPrint: curr.availability.inPrint,
-      availabilityDigital: curr.availability.digitalAvailable,
-      availabilityUsedMarket: curr.availability.usedMarket,
-      availabilityRating: curr.availability.rating
+      gradeLevelId: isFlat ? (curr.gradeLevelId || curr.gradeLevel?.id || '') : curr.targetAgeGrade?.gradeLevel?.id || '',
+      targetAgeGradeRating: isFlat ? curr.targetAgeGradeRating || 0 : curr.targetAgeGrade?.rating || 0,
+      teachingApproachStyle: isFlat ? curr.teachingApproachStyle || '' : curr.teachingApproach?.style || '',
+      teachingApproachDescription: isFlat ? curr.teachingApproachDescription || '' : curr.teachingApproach?.description || '',
+      teachingApproachRating: isFlat ? curr.teachingApproachRating || 0 : curr.teachingApproach?.rating || 0,
+      subjectIds: isFlat ? [] : curr.subjectsCovered?.subjects?.map((s: any) => s.id) || [],
+      subjectComprehensiveness: isFlat ? curr.subjectComprehensiveness || 0 : curr.subjectsCovered?.comprehensiveness || 0,
+      subjectsCoveredRating: isFlat ? curr.subjectsCoveredRating || 0 : curr.subjectsCovered?.rating || 0,
+      materialsComponents: isFlat ? curr.materialsComponents || [] : curr.materialsIncluded?.components || [],
+      materialsCompleteness: isFlat ? curr.materialsCompleteness || 0 : curr.materialsIncluded?.completeness || 0,
+      materialsIncludedRating: isFlat ? curr.materialsIncludedRating || 0 : curr.materialsIncluded?.rating || 0,
+      instructionStyleType: isFlat ? curr.instructionStyleType || '' : curr.instructionStyle?.type || '',
+      instructionSupportLevel: isFlat ? curr.instructionSupportLevel || 0 : curr.instructionStyle?.supportLevel || 0,
+      instructionStyleRating: isFlat ? curr.instructionStyleRating || 0 : curr.instructionStyle?.rating || 0,
+      timeCommitmentDailyMinutes: isFlat ? curr.timeCommitmentDailyMinutes || 0 : curr.timeCommitment?.dailyMinutes || 0,
+      timeCommitmentWeeklyHours: isFlat ? curr.timeCommitmentWeeklyHours || 0 : curr.timeCommitment?.weeklyHours || 0,
+      timeCommitmentFlexibility: isFlat ? curr.timeCommitmentFlexibility || 0 : curr.timeCommitment?.flexibility || 0,
+      timeCommitmentRating: isFlat ? curr.timeCommitmentRating || 0 : curr.timeCommitment?.rating || 0,
+      costPriceRange: isFlat ? curr.costPriceRange || '' : curr.cost?.priceRange || '',
+      costValue: isFlat ? curr.costValue || 0 : curr.cost?.value || 0,
+      costRating: isFlat ? curr.costRating || 0 : curr.cost?.rating || 0,
+      strengths: curr.strengths || [],
+      weaknesses: curr.weaknesses || [],
+      bestFor: curr.bestFor || [],
+      availabilityInPrint: isFlat ? curr.availabilityInPrint !== false : curr.availability?.inPrint !== false,
+      availabilityDigital: isFlat ? curr.availabilityDigital === true : curr.availability?.digitalAvailable === true,
+      availabilityUsedMarket: isFlat ? curr.availabilityUsedMarket === true : curr.availability?.usedMarket === true,
+      availabilityRating: isFlat ? curr.availabilityRating || 0 : curr.availability?.rating || 0
     });
 
     // Populate text fields
-    setStrengthsText(curr.strengths.join(', '));
-    setWeaknessesText(curr.weaknesses.join(', '));
-    setBestForText(curr.bestFor.join(', '));
-    setMaterialsText(curr.materialsIncluded.components.join(', '));
+    setStrengthsText((curr.strengths || []).join(', '));
+    setWeaknessesText((curr.weaknesses || []).join(', '));
+    setBestForText((curr.bestFor || []).join(', '));
+    setMaterialsText((isFlat ? curr.materialsComponents : curr.materialsIncluded?.components || []).join(', '));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
