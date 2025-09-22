@@ -6,29 +6,25 @@ import RatingDisplay from '../components/curriculum/RatingDisplay';
 import { SaveCurriculumButton } from '../components/curriculum/SaveCurriculumButton';
 import SEO from '../components/SEO';
 import LazyImage from '../components/LazyImage';
-import { createCurriculumUrl } from '../utils/url';
 
 const CurriculumDetailPage: React.FC = () => {
-  const { id, slug } = useParams<{ id?: string; slug?: string }>();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [curriculum, setCurriculum] = useState<Curriculum | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Determine the identifier to use (slug from new format, or id from old format)
-    const identifier = id || slug;
-    
-    if (!identifier) {
-      setError('Curriculum identifier not provided');
+    if (!id) {
+      setError('Curriculum ID not provided');
       setLoading(false);
       return;
     }
 
     const fetchCurriculum = async () => {
       try {
-        console.log('🔍 CurriculumDetailPage - Fetching curriculum with identifier:', identifier);
-        const response = await api.getCurriculumById(identifier);
+        console.log('🔍 CurriculumDetailPage - Fetching curriculum with ID:', id);
+        const response = await api.getCurriculumById(id);
         console.log('📊 CurriculumDetailPage - API response:', response);
         console.log('📚 CurriculumDetailPage - Curriculum data:', response.data.data?.curriculum);
         
@@ -47,7 +43,7 @@ const CurriculumDetailPage: React.FC = () => {
     };
 
     fetchCurriculum();
-  }, [id, slug]);
+  }, [id]);
 
 
 
@@ -108,7 +104,7 @@ const CurriculumDetailPage: React.FC = () => {
   // Generate SEO data with safe access
   const seoTitle = `${curriculum.name || 'Curriculum'} Review - ${curriculum.publisher || 'Unknown Publisher'}`;
   const seoDescription = `Detailed review of ${curriculum.name || 'curriculum'} by ${curriculum.publisher || 'unknown publisher'}. Rating: ${curriculum.overallRating || 0}/5. ${(curriculum.description || '').substring(0, 120)}...`;
-  const seoUrl = `https://shelftaught.com${createCurriculumUrl(curriculum.id, curriculum.name || '', curriculum.publisher || '')}`;
+  const seoUrl = `https://shelftaught.com/curriculum/${curriculum.id}`;
   const subjects = curriculum.subjectsCovered?.subjects || [];
   const subjectNames = subjects.map((s: any) => typeof s === 'string' ? s : s?.name || '').filter(Boolean);
   const seoKeywords = `${curriculum.name}, ${curriculum.publisher}, homeschool curriculum, ${subjectNames.join(', ')}, ${curriculum.targetAgeGrade?.gradeRange || ''}`;

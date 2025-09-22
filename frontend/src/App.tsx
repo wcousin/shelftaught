@@ -71,11 +71,6 @@ function App() {
             <Route path="/search" element={
               <SearchPageWithLayout />
             } />
-            <Route path="/curriculum/:slug/:id" element={
-              <Layout>
-                <CurriculumDetailPage />
-              </Layout>
-            } />
             <Route path="/curriculum/:id" element={
               <Layout>
                 <CurriculumDetailPage />

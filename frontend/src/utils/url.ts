@@ -9,16 +9,17 @@ export const createSlug = (text: string): string => {
     .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
 };
 
-export const createCurriculumUrl = (id: string, name: string, publisher?: string): string => {
-  const nameSlug = createSlug(name);
-  const publisherSlug = publisher ? createSlug(publisher) : '';
+export const createCurriculumUrl = (id: string, _name?: string, _publisher?: string): string => {
+  // Temporarily reverted to simple ID-based URLs until slug functionality is re-implemented
+  return `/curriculum/${id}`;
   
-  // Create a comprehensive slug: curriculum-name-by-publisher
-  const fullSlug = publisherSlug 
-    ? `${nameSlug}-by-${publisherSlug}`
-    : nameSlug;
-  
-  return `/curriculum/${id}/${fullSlug}`;
+  // TODO: Re-enable SEO-friendly URLs after backend slug support is restored
+  // const nameSlug = createSlug(name);
+  // const publisherSlug = publisher ? createSlug(publisher) : '';
+  // const fullSlug = publisherSlug 
+  //   ? `${nameSlug}-by-${publisherSlug}`
+  //   : nameSlug;
+  // return `/curriculum/${id}/${fullSlug}`;
 };
 
 export const createSearchUrl = (query: string, filters?: Record<string, any>): string => {
