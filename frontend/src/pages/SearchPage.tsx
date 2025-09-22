@@ -6,6 +6,35 @@ import CurriculumCard from '../components/curriculum/CurriculumCard';
 import { api } from '../services/api';
 import type { Curriculum, SearchParams } from '../types';
 
+// API response structure (different from detailed Curriculum type)
+interface CurriculumListItem {
+  id: string;
+  name: string;
+  publisher: string;
+  description: string;
+  imageUrl?: string;
+  gradeLevel: {
+    id: string;
+    name: string;
+    ageRange: string;
+  };
+  subjects: Array<{
+    id: string;
+    name: string;
+  }>;
+  teachingApproach: {
+    style: string;
+    rating: number;
+  };
+  cost: {
+    priceRange: string;
+    rating: number;
+  };
+  overallRating: number;
+  reviewCount: number;
+  createdAt: string;
+}
+
 interface FilterState {
   gradeLevels: string[];
   subjects: string[];
@@ -23,7 +52,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ onFiltersChange, searchQuery: p
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const query = propSearchQuery || searchParams.get('q') || '';
-  const [curricula, setCurricula] = useState<Curriculum[]>([]);
+  const [curricula, setCurricula] = useState<CurriculumListItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
@@ -241,8 +270,8 @@ const SearchPage: React.FC<SearchPageProps> = ({ onFiltersChange, searchQuery: p
                   description={curriculum.description}
                   overallRating={curriculum.overallRating}
                   imageUrl={curriculum.imageUrl}
-                  subjects={curriculum.subjectsCovered.subjects}
-                  gradeRange={curriculum.targetAgeGrade.gradeRange}
+                  subjects={curriculum.subjects}
+                  gradeRange={curriculum.gradeLevel.ageRange}
                   onClick={() => handleCurriculumClick(curriculum.id)}
                 />
               ))}

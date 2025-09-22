@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shelf Taught - Fresh Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .success { color: #22c55e; }
+        .error { color: #ef4444; }
+        .warning { color: #f59e0b; }
+        .info { color: #3b82f6; }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        pre {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.success { background: #dcfce7; color: #166534; }
+        .status.error { background: #fef2f2; color: #991b1b; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Shelf Taught - Fresh API Test</h1>
+    <p>This page tests the API directly without any cached data to help debug the flashing data issue.</p>
+    
+    <div class="test-section">
+        <h2>🔧 Cache Clearing Instructions</h2>
+        <p><strong>Before testing, clear your browser cache:</strong></p>
+        <ol>
+            <li>Open Developer Tools (F12)</li>
+            <li>Right-click the refresh button</li>
+            <li>Select "Empty Cache and Hard Reload"</li>
+            <li>Or use <kbd>Ctrl+Shift+R</kbd> (Windows/Linux) or <kbd>Cmd+Shift+R</kbd> (Mac)</li>
+        </ol>
+        <p><strong>Alternative:</strong> Open this page in an incognito/private window</p>
+    </div>
+
+    <div class="test-section">
+        <h2>🌐 Production URLs</h2>
+        <p><strong>Frontend:</strong> <a href="https://frontend-new-production-96a4.up.railway.app/" target="_blank">https://frontend-new-production-96a4.up.railway.app/</a></p>
+        <p><strong>Backend API:</strong> <a href="https://shelftaught-production.up.railway.app/api" target="_blank">https://shelftaught-production.up.railway.app/api</a></p>
+    </div>
+
+    <div class="test-section">
+        <h2>🧪 API Tests</h2>
+        <button onclick="testAllEndpoints()">Run All Tests</button>
+        <button onclick="clearResults()">Clear Results</button>
+        <div id="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 Live Data Preview</h2>
+        <button onclick="loadCurricula()">Load Curricula</button>
+        <button onclick="loadCategories()">Load Categories</button>
+        <div id="data-preview"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://shelftaught-production.up.railway.app/api';
+        const FRONTEND_URL = 'https://frontend-new-production-96a4.up.railway.app/';
+        
+        function log(message, type = 'info') {
+            const colors = {
+                success: '#22c55e',
+                error: '#ef4444',
+                warning: '#f59e0b',
+                info: '#3b82f6'
+            };
+            console.log(`%c${message}`, `color: ${colors[type]}`);
+        }
+
+        function addResult(test, status, message, data = null) {
+            const results = document.getElementById('test-results');
+            const div = document.createElement('div');
+            div.style.margin = '10px 0';
+            div.style.padding = '10px';
+            div.style.border = '1px solid #e5e7eb';
+            div.style.borderRadius = '6px';
+            
+            const statusClass = status === 'success' ? 'success' : status === 'error' ? 'error' : 'warning';
+            
+            div.innerHTML = `
+                <div><strong>${test}</strong> <span class="status ${statusClass}">${status.toUpperCase()}</span></div>
+                <div style="margin-top: 5px; color: #6b7280;">${message}</div>
+                ${data ? `<pre style="margin-top: 10px; font-size: 12px;">${JSON.stringify(data, null, 2).substring(0, 500)}${JSON.stringify(data, null, 2).length > 500 ? '...' : ''}</pre>` : ''}
+            `;
+            
+            results.appendChild(div);
+        }
+
+        function clearResults() {
+            document.getElementById('test-results').innerHTML = '';
+            document.getElementById('data-preview').innerHTML = '';
+        }
+
+        async function testEndpoint(name, url, expectData = false) {
+            try {
+                log(`Testing ${name}: ${url}`, 'info');
+                
+                const response = await fetch(url + '?_cb=' + Date.now()); // Cache buster
+                const status = response.status;
+                
+                if (status === 200) {
+                    const data = await response.json();
+                    
+                    // Check for mock data indicators
+                    const dataStr = JSON.stringify(data);
+                    const hasMockData = dataStr.includes('mock-') || 
+                                       dataStr.includes('Mock') ||
+                                       dataStr.includes('demo-') ||
+                                       dataStr.includes('placeholder');
+                    
+                    if (hasMockData) {
+                        addResult(name, 'warning', `Status ${status} - Contains mock data indicators`, data);
+                        log(`⚠️ ${name}: Contains mock data`, 'warning');
+                    } else {
+                        addResult(name, 'success', `Status ${status} - Real data confirmed`, expectData ? data : null);
+                        log(`✅ ${name}: Real data confirmed`, 'success');
+                    }
+                } else {
+                    const errorData = await response.text();
+                    addResult(name, 'error', `Status ${status}`, { error: errorData });
+                    log(`❌ ${name}: Status ${status}`, 'error');
+                }
+            } catch (error) {
+                addResult(name, 'error', error.message);
+                log(`❌ ${name}: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAllEndpoints() {
+            clearResults();
+            
+            const tests = [
+                { name: 'Health Check', url: 'https://shelftaught-production.up.railway.app/health', expectData: false },
+                { name: 'Curricula', url: `${API_BASE}/curricula`, expectData: true },
+                { name: 'Categories', url: `${API_BASE}/categories`, expectData: true },
+                { name: 'Search', url: `${API_BASE}/search?q=math`, expectData: true }
+            ];
+            
+            for (const test of tests) {
+                await testEndpoint(test.name, test.url, test.expectData);
+                await new Promise(resolve => setTimeout(resolve, 500)); // Small delay between tests
+            }
+            
+            // Test frontend
+            try {
+                const response = await fetch(FRONTEND_URL);
+                if (response.status === 200) {
+                    addResult('Frontend', 'success', `Status ${response.status} - Accessible`);
+                } else {
+                    addResult('Frontend', 'error', `Status ${response.status}`);
+                }
+            } catch (error) {
+                addResult('Frontend', 'error', error.message);
+            }
+        }
+
+        async function loadCurricula() {
+            try {
+                const response = await fetch(`${API_BASE}/curricula?_cb=${Date.now()}`);
+                const data = await response.json();
+                
+                const preview = document.getElementById('data-preview');
+                preview.innerHTML = `
+                    <h3>📚 Curricula Data</h3>
+                    <p><strong>Count:</strong> ${data.curricula ? data.curricula.length : 0}</p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                document.getElementById('data-preview').innerHTML = `<p class="error">Error loading curricula: ${error.message}</p>`;
+            }
+        }
+
+        async function loadCategories() {
+            try {
+                const response = await fetch(`${API_BASE}/categories?_cb=${Date.now()}`);
+                const data = await response.json();
+                
+                const preview = document.getElementById('data-preview');
+                preview.innerHTML = `
+                    <h3>📂 Categories Data</h3>
+                    <p><strong>Count:</strong> ${data.categories ? data.categories.length : 0}</p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                document.getElementById('data-preview').innerHTML = `<p class="error">Error loading categories: ${error.message}</p>`;
+            }
+        }
+
+        // Auto-run basic test on page load
+        window.addEventListener('load', () => {
+            log('🧪 Fresh API Test Page Loaded', 'info');
+            log('Ready to test API endpoints without cached data', 'info');
+        });
+    </script>
+</body>
+</html>

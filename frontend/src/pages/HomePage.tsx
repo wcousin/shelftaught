@@ -8,9 +8,38 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import type { Curriculum } from '../types';
 
+// API response structure (different from detailed Curriculum type)
+interface CurriculumListItem {
+  id: string;
+  name: string;
+  publisher: string;
+  description: string;
+  imageUrl?: string;
+  gradeLevel: {
+    id: string;
+    name: string;
+    ageRange: string;
+  };
+  subjects: Array<{
+    id: string;
+    name: string;
+  }>;
+  teachingApproach: {
+    style: string;
+    rating: number;
+  };
+  cost: {
+    priceRange: string;
+    rating: number;
+  };
+  overallRating: number;
+  reviewCount: number;
+  createdAt: string;
+}
+
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
-  const [featuredCurricula, setFeaturedCurricula] = useState<Curriculum[]>([]);
+  const [featuredCurricula, setFeaturedCurricula] = useState<CurriculumListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -144,8 +173,8 @@ const HomePage: React.FC = () => {
                     description={curriculum.description}
                     overallRating={curriculum.overallRating}
                     imageUrl={curriculum.imageUrl}
-                    subjects={curriculum.subjectsCovered.subjects}
-                    gradeRange={curriculum.targetAgeGrade.gradeRange}
+                    subjects={curriculum.subjects}
+                    gradeRange={curriculum.gradeLevel.ageRange}
                     onClick={() => handleCurriculumClick(curriculum.id)}
                   />
                 ) : (
@@ -157,8 +186,8 @@ const HomePage: React.FC = () => {
                     description={curriculum.description}
                     overallRating={curriculum.overallRating}
                     imageUrl={curriculum.imageUrl}
-                    subjects={curriculum.subjectsCovered.subjects}
-                    gradeRange={curriculum.targetAgeGrade.gradeRange}
+                    subjects={curriculum.subjects}
+                    gradeRange={curriculum.gradeLevel.ageRange}
                     onClick={() => handleCurriculumClick(curriculum.id)}
                   />
                 )
