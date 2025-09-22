@@ -178,28 +178,9 @@ router.post('/curricula', asyncHandler(async (req: Request, res: Response) => {
     }
   }
 
-  // Generate unique slug with error handling
-  let slug: string;
-  try {
-    const baseSlug = SlugUtils.createCurriculumSlug(name!, publisher!);
-    slug = await SlugUtils.ensureUniqueSlug(
-      baseSlug,
-      async (checkSlug) => {
-        try {
-          const existing = await prisma.curriculum.findUnique({ where: { slug: checkSlug } });
-          return !!existing;
-        } catch (error) {
-          // If slug column doesn't exist yet, return false to allow creation
-          console.warn('Slug uniqueness check failed, assuming unique:', error);
-          return false;
-        }
-      }
-    );
-  } catch (error) {
-    // Fallback slug generation if SlugUtils fails
-    console.warn('Slug generation failed, using fallback:', error);
-    slug = `${name!.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${Date.now()}`;
-  }
+  // Temporarily disable slug generation until migration is applied
+  // TODO: Re-enable after migration
+  console.log('Slug generation temporarily disabled until migration is applied');
 
   // Calculate overall rating
   const ratings = [
@@ -254,10 +235,7 @@ router.post('/curricula', asyncHandler(async (req: Request, res: Response) => {
       reviewCount: 1
     };
 
-  // Add slug if available
-  if (slug) {
-    curriculumData.slug = slug;
-  }
+  // Slug temporarily disabled until migration is applied
 
   // Create curriculum
   const curriculum = await prisma.curriculum.create({
@@ -364,25 +342,8 @@ router.put('/curricula/:id', asyncHandler(async (req: Request, res: Response) =>
     }
   }
 
-  // Generate new slug if name or publisher changed
-  let slug = existingCurriculum.slug;
-  if (name !== undefined || publisher !== undefined) {
-    const newName = name ?? existingCurriculum.name;
-    const newPublisher = publisher ?? existingCurriculum.publisher;
-    const baseSlug = SlugUtils.createCurriculumSlug(newName, newPublisher);
-    
-    // Only update slug if it would be different
-    if (baseSlug !== existingCurriculum.slug) {
-      slug = await SlugUtils.ensureUniqueSlug(
-        baseSlug,
-        async (checkSlug) => {
-          const existing = await prisma.curriculum.findUnique({ where: { slug: checkSlug } });
-          return !!existing && existing.id !== id;
-        },
-        id
-      );
-    }
-  }
+  // Slug updates temporarily disabled until migration is applied
+  console.log('Slug updates temporarily disabled until migration is applied');
 
   // Calculate overall rating if ratings are provided
   let overallRating = existingCurriculum.overallRating;
@@ -408,7 +369,7 @@ router.put('/curricula/:id', asyncHandler(async (req: Request, res: Response) =>
     data: {
       ...(name !== undefined && { name }),
       ...(publisher !== undefined && { publisher }),
-      ...(slug !== existingCurriculum.slug && { slug }),
+      // Slug updates temporarily disabled
       ...(description !== undefined && { description }),
       ...(imageUrl !== undefined && { imageUrl }),
       ...(gradeLevelId !== undefined && { gradeLevelId }),

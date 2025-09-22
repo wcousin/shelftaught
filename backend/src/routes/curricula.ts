@@ -166,68 +166,33 @@ router.get('/:slugOrId', asyncHandler(async (req: Request, res: Response) => {
     throw new ValidationError('Curriculum slug or ID is required');
   }
   
-  // Try to find by slug first, then by ID for backward compatibility
-  let curriculum;
-  try {
-    curriculum = await prisma.curriculum.findUnique({
-      where: { slug: slugOrId },
-      include: {
-        gradeLevel: {
-          select: {
-            id: true,
-            name: true,
-            ageRange: true,
-            minAge: true,
-            maxAge: true
-          }
-        },
-        curriculumSubjects: {
-          include: {
-            subject: {
-              select: {
-                id: true,
-                name: true,
-                description: true
-              }
+  // For now, only try ID lookup until migration is applied
+  // TODO: Re-enable slug lookup after migration
+  const curriculum = await prisma.curriculum.findUnique({
+    where: { id: slugOrId },
+    include: {
+      gradeLevel: {
+        select: {
+          id: true,
+          name: true,
+          ageRange: true,
+          minAge: true,
+          maxAge: true
+        }
+      },
+      curriculumSubjects: {
+        include: {
+          subject: {
+            select: {
+              id: true,
+              name: true,
+              description: true
             }
           }
         }
       }
-    });
-  } catch (error) {
-    // If slug column doesn't exist yet, skip slug lookup
-    console.warn('Slug lookup failed, trying ID lookup:', error);
-    curriculum = null;
-  }
-  
-  // If not found by slug, try by ID for backward compatibility
-  if (!curriculum) {
-    curriculum = await prisma.curriculum.findUnique({
-      where: { id: slugOrId },
-      include: {
-        gradeLevel: {
-          select: {
-            id: true,
-            name: true,
-            ageRange: true,
-            minAge: true,
-            maxAge: true
-          }
-        },
-        curriculumSubjects: {
-          include: {
-            subject: {
-              select: {
-                id: true,
-                name: true,
-                description: true
-              }
-            }
-          }
-        }
-      }
-    });
-  }
+    }
+  });
   
   if (!curriculum) {
     throw new NotFoundError('Curriculum not found');
