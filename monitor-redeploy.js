@@ -1,96 +1,67 @@
 #!/usr/bin/env node
 
-/**
- * Monitor Railway redeploy progress
- * Checks both frontend and backend after the GitHub push
- */
+const https = require('https');
 
 const FRONTEND_URL = 'https://frontend-new-production-96a4.up.railway.app';
-const BACKEND_URL = 'https://shelftaught-production.up.railway.app/api';
+const BACKEND_URL = 'https://shelftaught-production.up.railway.app';
 
-console.log('🚀 Monitoring Railway Redeploy Progress');
-console.log('======================================');
-console.log(`Frontend: ${FRONTEND_URL}`);
-console.log(`Backend:  ${BACKEND_URL}`);
-console.log('');
-
-let checkCount = 0;
-const maxChecks = 20; // Check for up to 10 minutes (30s intervals)
-
-async function checkDeployment() {
-  checkCount++;
-  console.log(`\n📊 Check #${checkCount} (${new Date().toLocaleTimeString()})`);
-  
-  // Test backend API
-  try {
-    const backendResponse = await fetch(`${BACKEND_URL}/curricula?_cb=${Date.now()}`);
-    const backendStatus = backendResponse.status;
-    
-    if (backendStatus === 200) {
-      const data = await backendResponse.json();
-      const curriculaCount = data.data?.curricula?.length || 0;
-      console.log(`✅ Backend: ${backendStatus} - ${curriculaCount} curricula available`);
-    } else {
-      console.log(`❌ Backend: ${backendStatus}`);
-    }
-  } catch (error) {
-    console.log(`❌ Backend: ${error.message}`);
-  }
-  
-  // Test frontend
-  try {
-    const frontendResponse = await fetch(`${FRONTEND_URL}?_cb=${Date.now()}`);
-    const frontendStatus = frontendResponse.status;
-    
-    if (frontendStatus === 200) {
-      console.log(`✅ Frontend: ${frontendStatus} - Accessible`);
-      
-      // Check if the new API service is deployed
-      const html = await frontendResponse.text();
-      const hasNewApiCode = html.includes('Cleared API cache to prevent stale data') || 
-                           html.includes('CACHE_BUSTER');
-      
-      if (hasNewApiCode) {
-        console.log(`🎉 Frontend: New API service deployed!`);
-        console.log('');
-        console.log('🎯 Deployment Complete!');
-        console.log('======================');
-        console.log('✅ Backend API working with real data');
-        console.log('✅ Frontend deployed with fixed API service');
-        console.log('✅ Mock data fallbacks removed');
-        console.log('');
-        console.log('🌐 Test the site now:');
-        console.log(`   ${FRONTEND_URL}`);
-        console.log('');
-        console.log('💡 If you still see "No curricula available":');
-        console.log('   1. Clear browser cache (Ctrl+Shift+R)');
-        console.log('   2. Check browser console for errors');
-        console.log('   3. Try incognito mode');
-        
-        process.exit(0);
-      } else {
-        console.log(`⏳ Frontend: Still deploying (old version active)`);
-      }
-    } else {
-      console.log(`❌ Frontend: ${frontendStatus}`);
-    }
-  } catch (error) {
-    console.log(`❌ Frontend: ${error.message}`);
-  }
-  
-  if (checkCount >= maxChecks) {
-    console.log('\n⏰ Maximum checks reached. Deployment may still be in progress.');
-    console.log('Check Railway dashboard for deployment status.');
-    process.exit(1);
-  }
-  
-  console.log('⏳ Waiting 30 seconds for next check...');
-  setTimeout(checkDeployment, 30000);
+function makeRequest(url) {
+  return new Promise((resolve, reject) => {
+    const req = https.get(url, (res) => {
+      let data = '';
+      res.on('data', (chunk) => data += chunk);
+      res.on('end', () => resolve({ status: res.statusCode, data }));
+    });
+    req.on('error', reject);
+    req.setTimeout(10000, () => {
+      req.destroy();
+      reject(new Error('Request timeout'));
+    });
+  });
 }
 
-console.log('⏳ Starting deployment monitoring...');
-console.log('💡 Railway typically takes 2-5 minutes to redeploy');
-console.log('');
+async function checkDeployment() {
+  console.log('🔍 Monitoring Railway deployment status...\n');
+  
+  try {
+    // Check backend health
+    console.log('1. Testing backend health...');
+    const backendHealth = await makeRequest(`${BACKEND_URL}/health`);
+    console.log(`   ✅ Backend: ${backendHealth.status} - ${backendHealth.status === 200 ? 'Healthy' : 'Issues'}`);
+    
+    // Check backend API
+    console.log('2. Testing backend API...');
+    const backendAPI = await makeRequest(`${BACKEND_URL}/api/curricula?limit=1`);
+    console.log(`   ${backendAPI.status === 200 ? '✅' : '❌'} Backend API: ${backendAPI.status}`);
+    
+    // Check frontend
+    console.log('3. Testing frontend...');
+    const frontend = await makeRequest(FRONTEND_URL);
+    console.log(`   ${frontend.status === 200 ? '✅' : '❌'} Frontend: ${frontend.status}`);
+    
+    // Summary
+    console.log('\n📊 Deployment Status Summary:');
+    console.log(`   Backend Health: ${backendHealth.status === 200 ? '✅ Working' : '❌ Issues'}`);
+    console.log(`   Backend API: ${backendAPI.status === 200 ? '✅ Working' : '❌ Issues'}`);
+    console.log(`   Frontend: ${frontend.status === 200 ? '✅ Working' : '❌ Issues'}`);
+    
+    if (backendHealth.status === 200 && backendAPI.status === 200 && frontend.status === 200) {
+      console.log('\n🎉 All services are working! The curricula should now display properly.');
+      console.log(`\n🌐 Visit your site: ${FRONTEND_URL}`);
+    } else {
+      console.log('\n⚠️  Some services have issues. Check the Railway dashboard for deployment logs.');
+    }
+    
+  } catch (error) {
+    console.error('❌ Error checking deployment:', error.message);
+  }
+}
 
-// Start monitoring
+// Run the check
 checkDeployment();
+
+// If running with --watch flag, check every 30 seconds
+if (process.argv.includes('--watch')) {
+  console.log('\n👀 Watching deployment status (checking every 30 seconds)...');
+  setInterval(checkDeployment, 30000);
+}
