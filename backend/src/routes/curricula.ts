@@ -228,44 +228,6 @@ router.get('/:slugOrId', asyncHandler(async (req: Request, res: Response) => {
       }
     });
   }
-                id: true,
-                name: true,
-                description: true
-            }
-          }
-        }
-      }
-    }
-  });
-  
-  // If not found by slug, try by ID for backward compatibility
-  if (!curriculum) {
-    curriculum = await prisma.curriculum.findUnique({
-      where: { id: slugOrId },
-      include: {
-        gradeLevel: {
-          select: {
-            id: true,
-            name: true,
-            ageRange: true,
-            minAge: true,
-            maxAge: true
-          }
-        },
-        curriculumSubjects: {
-          include: {
-            subject: {
-              select: {
-                id: true,
-                name: true,
-                description: true
-              }
-            }
-          }
-        }
-      }
-    });
-  }
   
   if (!curriculum) {
     throw new NotFoundError('Curriculum not found');
