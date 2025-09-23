@@ -97,13 +97,13 @@ const HomePage: React.FC = () => {
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Hero Section */}
-        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12 mb-12 sm:mb-16">
+        <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-10 mb-8 sm:mb-12">
           {/* Left Content */}
           <div className="flex-1 text-center lg:text-left">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
               Find the Perfect Homeschool Curriculum
             </h1>
-            <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 mb-8 sm:mb-10 max-w-2xl mx-auto lg:mx-0">
+            <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 max-w-2xl mx-auto lg:mx-0">
               Discover comprehensive reviews and ratings to help you choose the best educational materials for your children.
             </p>
 
@@ -116,7 +116,7 @@ const HomePage: React.FC = () => {
 
           {/* Right Images Grid */}
           <div className="flex-1 max-w-lg">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               {/* Top Left - 1:1 ratio */}
               <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden">
                 <img
@@ -126,19 +126,19 @@ const HomePage: React.FC = () => {
                 />
               </div>
 
-              {/* Top Right - 1:2 ratio (tall) */}
-              <div className="aspect-[1/2] bg-gray-200 rounded-lg overflow-hidden">
+              {/* Top Right - 2:1 ratio (wide) */}
+              <div className="aspect-[2/1] bg-gray-200 rounded-lg overflow-hidden">
                 <img
-                  src="https://via.placeholder.com/300x600/10B981/FFFFFF?text=Curriculum+2"
+                  src="https://via.placeholder.com/600x300/10B981/FFFFFF?text=Curriculum+2"
                   alt="Curriculum placeholder 2"
                   className="w-full h-full object-cover"
                 />
               </div>
 
-              {/* Bottom Left - 1:2 ratio (tall) */}
-              <div className="aspect-[1/2] bg-gray-200 rounded-lg overflow-hidden">
+              {/* Bottom Left - 2:1 ratio (wide) */}
+              <div className="aspect-[2/1] bg-gray-200 rounded-lg overflow-hidden">
                 <img
-                  src="https://via.placeholder.com/300x600/F59E0B/FFFFFF?text=Curriculum+3"
+                  src="https://via.placeholder.com/600x300/F59E0B/FFFFFF?text=Curriculum+3"
                   alt="Curriculum placeholder 3"
                   className="w-full h-full object-cover"
                 />
