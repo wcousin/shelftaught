@@ -48,23 +48,23 @@ const HomePage: React.FC = () => {
         console.log('🏠 HomePage: Starting to fetch curricula...');
         setLoading(true);
         setError(null);
-
-        const response = await api.getCurricula({
-          limit: 6,
-          sortBy: 'overallRating',
-          sortOrder: 'desc'
+        
+        const response = await api.getCurricula({ 
+          limit: 6, 
+          sortBy: 'overallRating', 
+          sortOrder: 'desc' 
         });
-
+        
         console.log('🏠 HomePage: API response received:', response);
         console.log('🏠 HomePage: Response data:', response.data);
         console.log('🏠 HomePage: Response data.data:', response.data.data);
         console.log('🏠 HomePage: Curricula array:', response.data.data?.curricula);
         console.log('🏠 HomePage: Curricula length:', response.data.data?.curricula?.length);
-
+        
         const curricula = response.data.data?.curricula || [];
         console.log('🏠 HomePage: Setting curricula state:', curricula);
         setFeaturedCurricula(curricula);
-
+        
         console.log('🏠 HomePage: State should be updated with', curricula.length, 'curricula');
       } catch (err) {
         console.error('🏠 HomePage: Error fetching featured curricula:', err);
@@ -95,65 +95,20 @@ const HomePage: React.FC = () => {
         url="https://shelftaught.com"
         keywords="homeschool curriculum, curriculum reviews, homeschool ratings, educational materials, teaching resources"
       />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Hero Section */}
-        <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-10 mb-8 sm:mb-12">
-          {/* Left Content */}
-          <div className="flex-1 text-center lg:text-left">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
-              Find the Perfect Homeschool Curriculum
-            </h1>
-            <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 max-w-2xl mx-auto lg:mx-0">
-              Discover comprehensive reviews and ratings to help you choose the best educational materials for your children.
-            </p>
-
-            <SearchBar
-              onSearch={handleSearch}
-              placeholder="Search for curricula, subjects, or publishers..."
-              className="max-w-2xl mx-auto lg:mx-0"
-            />
-          </div>
-
-          {/* Right Images Grid */}
-          <div className="flex-1 max-w-lg">
-            <div className="grid grid-cols-2 gap-3">
-              {/* Top Left - 1:1 ratio */}
-              <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden">
-                <img
-                  src="https://via.placeholder.com/300x300/4F46E5/FFFFFF?text=Curriculum+1"
-                  alt="Curriculum placeholder 1"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              {/* Top Right - 2:1 ratio (wide) */}
-              <div className="aspect-[2/1] bg-gray-200 rounded-lg overflow-hidden">
-                <img
-                  src="https://via.placeholder.com/600x300/10B981/FFFFFF?text=Curriculum+2"
-                  alt="Curriculum placeholder 2"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              {/* Bottom Left - 2:1 ratio (wide) */}
-              <div className="aspect-[2/1] bg-gray-200 rounded-lg overflow-hidden">
-                <img
-                  src="https://via.placeholder.com/600x300/F59E0B/FFFFFF?text=Curriculum+3"
-                  alt="Curriculum placeholder 3"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              {/* Bottom Right - 1:1 ratio */}
-              <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden">
-                <img
-                  src="https://via.placeholder.com/300x300/EF4444/FFFFFF?text=Curriculum+4"
-                  alt="Curriculum placeholder 4"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-          </div>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
+            Find the Perfect Homeschool Curriculum
+          </h1>
+          <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 px-4">
+            Discover comprehensive reviews and ratings to help you choose the best educational materials for your children.
+          </p>
+          
+          <SearchBar 
+            onSearch={handleSearch}
+            placeholder="Search for curricula, subjects, or publishers..."
+            className="max-w-2xl mx-auto"
+          />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-8 sm:mb-12">
@@ -166,7 +121,7 @@ const HomePage: React.FC = () => {
             <h3 className="text-base sm:text-lg font-semibold mb-2">Search & Filter</h3>
             <p className="text-sm sm:text-base text-gray-600">Find curricula by subject, grade level, teaching approach, and more.</p>
           </div>
-
+          
           <div className="text-center px-4">
             <div className="bg-green-100 rounded-full w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center mx-auto mb-3 sm:mb-4">
               <svg className="w-6 h-6 sm:w-8 sm:h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -176,7 +131,7 @@ const HomePage: React.FC = () => {
             <h3 className="text-base sm:text-lg font-semibold mb-2">Detailed Reviews</h3>
             <p className="text-sm sm:text-base text-gray-600">Read comprehensive reviews covering all aspects of each curriculum.</p>
           </div>
-
+          
           <div className="text-center px-4">
             <div className="bg-purple-100 rounded-full w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center mx-auto mb-3 sm:mb-4">
               <svg className="w-6 h-6 sm:w-8 sm:h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -193,7 +148,7 @@ const HomePage: React.FC = () => {
           <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
             Explore some of our most popular and highly-rated curriculum options.
           </p>
-
+          
           {loading && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
               {[...Array(6)].map((_, index) => (
@@ -210,7 +165,7 @@ const HomePage: React.FC = () => {
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
               <p className="text-red-600">{error}</p>
-              <button
+              <button 
                 onClick={() => window.location.reload()}
                 className="mt-2 text-red-700 underline hover:no-underline"
               >
@@ -259,9 +214,9 @@ const HomePage: React.FC = () => {
               <p className="text-gray-600 mb-4">No curricula available at the moment.</p>
             </div>
           )}
-
+          
           <div className="text-center">
-            <button
+            <button 
               onClick={() => navigate('/browse')}
               className="bg-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-blue-700 transition-colors touch-manipulation text-sm sm:text-base"
             >
