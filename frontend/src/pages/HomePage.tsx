@@ -48,23 +48,23 @@ const HomePage: React.FC = () => {
         console.log('🏠 HomePage: Starting to fetch curricula...');
         setLoading(true);
         setError(null);
-        
-        const response = await api.getCurricula({ 
-          limit: 6, 
-          sortBy: 'overallRating', 
-          sortOrder: 'desc' 
+
+        const response = await api.getCurricula({
+          limit: 6,
+          sortBy: 'overallRating',
+          sortOrder: 'desc'
         });
-        
+
         console.log('🏠 HomePage: API response received:', response);
         console.log('🏠 HomePage: Response data:', response.data);
         console.log('🏠 HomePage: Response data.data:', response.data.data);
         console.log('🏠 HomePage: Curricula array:', response.data.data?.curricula);
         console.log('🏠 HomePage: Curricula length:', response.data.data?.curricula?.length);
-        
+
         const curricula = response.data.data?.curricula || [];
         console.log('🏠 HomePage: Setting curricula state:', curricula);
         setFeaturedCurricula(curricula);
-        
+
         console.log('🏠 HomePage: State should be updated with', curricula.length, 'curricula');
       } catch (err) {
         console.error('🏠 HomePage: Error fetching featured curricula:', err);
@@ -95,61 +95,67 @@ const HomePage: React.FC = () => {
         url="https://shelftaught.com"
         keywords="homeschool curriculum, curriculum reviews, homeschool ratings, educational materials, teaching resources"
       />
+      {/* Hero Section with Full-Width Background - Break out of parent padding */}
+      <div className="-mx-4 md:-mx-6 lg:-mx-8 -mt-4 md:-mt-6 lg:-mt-8 bg-gradient-to-b from-blue-200 to-blue-50 py-8 sm:py-12 mb-8 sm:mb-12">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
+          <div className="text-center mb-8 sm:mb-12">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
+              Find the Perfect Homeschool Curriculum
+            </h1>
+            <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 px-4">
+              Discover comprehensive reviews and ratings to help you choose the best educational materials for your children.
+            </p>
+
+            <SearchBar
+              onSearch={handleSearch}
+              placeholder="Search for curricula, subjects, or publishers..."
+              className="max-w-2xl mx-auto"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <div className="text-center px-4">
+              <div className="bg-blue-50 rounded-full w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <svg className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <h3 className="text-base sm:text-lg font-semibold mb-2">Search & Filter</h3>
+              <p className="text-sm sm:text-base text-gray-600">Find curricula by subject, grade level, teaching approach, and more.</p>
+            </div>
+
+            <div className="text-center px-4">
+              <div className="bg-purple-100 rounded-full w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <svg className="w-6 h-6 sm:w-8 sm:h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </div>
+              <h3 className="text-base sm:text-lg font-semibold mb-2">Save Favorites</h3>
+              <p className="text-sm sm:text-base text-gray-600">Create your personal list of curricula to compare and consider.</p>
+            </div>
+
+            <div className="text-center px-4">
+              <div className="bg-green-100 rounded-full w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <svg className="w-6 h-6 sm:w-8 sm:h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              </div>
+              <h3 className="text-base sm:text-lg font-semibold mb-2">Take Notes</h3>
+              <p className="text-sm sm:text-base text-gray-600">Add personal notes and thoughts to your saved curricula for easy reference.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Featured Curricula Section */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8 sm:mb-12">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
-            Find the Perfect Homeschool Curriculum
-          </h1>
-          <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 px-4">
-            Discover comprehensive reviews and ratings to help you choose the best educational materials for your children.
-          </p>
-          
-          <SearchBar 
-            onSearch={handleSearch}
-            placeholder="Search for curricula, subjects, or publishers..."
-            className="max-w-2xl mx-auto"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-8 sm:mb-12">
-          <div className="text-center px-4">
-            <div className="bg-blue-100 rounded-full w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center mx-auto mb-3 sm:mb-4">
-              <svg className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            <h3 className="text-base sm:text-lg font-semibold mb-2">Search & Filter</h3>
-            <p className="text-sm sm:text-base text-gray-600">Find curricula by subject, grade level, teaching approach, and more.</p>
-          </div>
-
-          <div className="text-center px-4">
-            <div className="bg-purple-100 rounded-full w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center mx-auto mb-3 sm:mb-4">
-              <svg className="w-6 h-6 sm:w-8 sm:h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-            </div>
-            <h3 className="text-base sm:text-lg font-semibold mb-2">Save Favorites</h3>
-            <p className="text-sm sm:text-base text-gray-600">Create your personal list of curricula to compare and consider.</p>
-          </div>
-          
-          <div className="text-center px-4">
-            <div className="bg-green-100 rounded-full w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center mx-auto mb-3 sm:mb-4">
-              <svg className="w-6 h-6 sm:w-8 sm:h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h3 className="text-base sm:text-lg font-semibold mb-2">Take Notes</h3>
-            <p className="text-sm sm:text-base text-gray-600">Add personal notes and thoughts to your saved curricula for easy reference.</p>
-          </div>
-        
-        </div>
 
         <div className="bg-gray-50 rounded-lg p-4 sm:p-6 lg:p-8">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Featured Curricula</h2>
           <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
             Explore some of our most popular and highly-rated curriculum options.
           </p>
-          
+
           {loading && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
               {[...Array(6)].map((_, index) => (
@@ -166,7 +172,7 @@ const HomePage: React.FC = () => {
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
               <p className="text-red-600">{error}</p>
-              <button 
+              <button
                 onClick={() => window.location.reload()}
                 className="mt-2 text-red-700 underline hover:no-underline"
               >
@@ -215,9 +221,9 @@ const HomePage: React.FC = () => {
               <p className="text-gray-600 mb-4">No curricula available at the moment.</p>
             </div>
           )}
-          
+
           <div className="text-center">
-            <button 
+            <button
               onClick={() => navigate('/browse')}
               className="bg-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-blue-700 transition-colors touch-manipulation text-sm sm:text-base"
             >
