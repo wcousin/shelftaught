@@ -9,18 +9,18 @@ const Footer: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 mt-8 pt-8 border-t border-gray-200 md:grid-cols-4 gap-8">
           {/* Brand Section */}
-          <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center mb-4">
+          <div className="col-span-1 md:col-span-2 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start mb-4">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
                 <span className="text-white font-bold text-sm">ST</span>
               </div>
               <h3 className="text-lg font-bold text-gray-900">Shelf Taught</h3>
             </div>
-            <p className="text-sm text-gray-600 mb-4 max-w-md">
+            <p className="text-sm text-gray-600 mb-4 max-w-md mx-auto md:mx-0">
               Helping homeschooling families make informed curriculum decisions through comprehensive reviews and ratings. 
               Find the perfect educational materials for your child's learning journey.
             </p>
-            <div className="flex space-x-4">
+            <div className="flex space-x-4 justify-center md:justify-start">
               <a 
                 href="https://facebook.com" 
                 target="_blank" 
@@ -58,7 +58,7 @@ const Footer: React.FC = () => {
           </div>
 
           {/* Navigation Links */}
-          <div>
+          <div className="text-center md:text-left">
             <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
               Browse
             </h3>
@@ -97,7 +97,7 @@ const Footer: React.FC = () => {
           </div>
 
           {/* Support & Info */}
-          <div>
+          <div className="text-center md:text-left">
             <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
               Support
             </h3>
@@ -138,11 +138,11 @@ const Footer: React.FC = () => {
 
         {/* Bottom Section */}
         <div className="mt-8 pt-8 border-t border-gray-200">
-          <div className="flex flex-col md:flex-row justify-between items-center">
+          <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left">
             <div className="text-sm text-gray-500">
               © {currentYear} Shelf Taught. All rights reserved.
             </div>
-            <div className="mt-4 md:mt-0 flex items-center space-x-6">
+            <div className="mt-4 md:mt-0 flex items-center justify-center space-x-6">
               <span className="text-sm text-gray-500">
                 Made with ❤️ for homeschooling families
               </span>

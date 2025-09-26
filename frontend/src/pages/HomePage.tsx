@@ -96,7 +96,7 @@ const HomePage: React.FC = () => {
         keywords="homeschool curriculum, curriculum reviews, homeschool ratings, educational materials, teaching resources"
       />
       {/* Hero Section with Full-Width Background - Break out of parent padding */}
-      <div className="-mx-4 md:-mx-6 lg:-mx-8 -mt-4 md:-mt-6 lg:-mt-8 bg-gradient-to-b from-blue-200 py-8 sm:py-12 mb-8 sm:mb-12">
+      <div className="-mx-4 md:-mx-6 lg:-mx-8 -mt-4 md:-mt-6 lg:-mt-8 bg-gradient-to-b from-blue-200 to-gray-50 py-8 sm:py-12 mb-8 sm:mb-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
           <div className="text-center mb-8 sm:mb-12">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
