@@ -44,7 +44,7 @@ export const uploadToS3 = multer({
   storage: multerS3({
     s3: s3Client,
     bucket: process.env.AWS_S3_BUCKET!,
-    acl: 'public-read',
+    // Removed ACL setting - bucket policy handles public access
     key: function (req, file, cb) {
       // Generate unique filename with timestamp
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
