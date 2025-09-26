@@ -121,17 +121,7 @@ const HomePage: React.FC = () => {
             <h3 className="text-base sm:text-lg font-semibold mb-2">Search & Filter</h3>
             <p className="text-sm sm:text-base text-gray-600">Find curricula by subject, grade level, teaching approach, and more.</p>
           </div>
-          
-          <div className="text-center px-4">
-            <div className="bg-green-100 rounded-full w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center mx-auto mb-3 sm:mb-4">
-              <svg className="w-6 h-6 sm:w-8 sm:h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h3 className="text-base sm:text-lg font-semibold mb-2">Detailed Reviews</h3>
-            <p className="text-sm sm:text-base text-gray-600">Read comprehensive reviews covering all aspects of each curriculum.</p>
-          </div>
-          
+
           <div className="text-center px-4">
             <div className="bg-purple-100 rounded-full w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center mx-auto mb-3 sm:mb-4">
               <svg className="w-6 h-6 sm:w-8 sm:h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -141,6 +131,17 @@ const HomePage: React.FC = () => {
             <h3 className="text-base sm:text-lg font-semibold mb-2">Save Favorites</h3>
             <p className="text-sm sm:text-base text-gray-600">Create your personal list of curricula to compare and consider.</p>
           </div>
+          
+          <div className="text-center px-4">
+            <div className="bg-green-100 rounded-full w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+              <svg className="w-6 h-6 sm:w-8 sm:h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="text-base sm:text-lg font-semibold mb-2">Take Notes</h3>
+            <p className="text-sm sm:text-base text-gray-600">Add personal notes and thoughts to your saved curricula for easy reference.</p>
+          </div>
+        
         </div>
 
         <div className="bg-gray-50 rounded-lg p-4 sm:p-6 lg:p-8">
