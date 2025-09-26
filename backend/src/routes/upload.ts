@@ -5,7 +5,7 @@ import AWS from 'aws-sdk';
 
 const router = Router();
 
-// Health check endpoint to test AWS S3 connectivity
+// Health check endpoint to test AWS S3 connectivity (no auth required)
 router.get('/health', async (req: Request, res: Response) => {
   try {
     const s3 = new AWS.S3({
@@ -22,6 +22,7 @@ router.get('/health', async (req: Request, res: Response) => {
       message: 'S3 connection successful',
       bucket: process.env.AWS_S3_BUCKET,
       region: process.env.AWS_REGION,
+      timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
     console.error('❌ S3 health check failed:', error);
@@ -31,6 +32,39 @@ router.get('/health', async (req: Request, res: Response) => {
       code: error.code,
     });
   }
+});
+
+// Test upload endpoint without authentication (for debugging)
+router.post('/test-image', (req: Request, res: Response) => {
+  uploadToS3.single('image')(req, res, (error) => {
+    if (error) {
+      console.error('❌ Test upload error:', error);
+      return res.status(500).json({ 
+        error: 'Upload failed', 
+        details: error.message,
+        code: error.code 
+      });
+    }
+
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+      }
+
+      const file = req.file as Express.MulterS3.File;
+      
+      console.log('✅ Test image uploaded successfully:', file.key);
+      
+      res.json({
+        message: 'Test image uploaded successfully',
+        imageUrl: file.location,
+        key: file.key,
+      });
+    } catch (err) {
+      console.error('❌ Test post-upload error:', err);
+      res.status(500).json({ error: 'Failed to process uploaded image' });
+    }
+  });
 });
 
 // Upload single image
