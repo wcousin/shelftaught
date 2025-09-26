@@ -1,11 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { uploadToS3, deleteFromS3 } from '../services/s3Service';
-import { authenticateToken } from '../middleware/auth';
+import { authenticate } from '../middleware/auth';
 
 const router = Router();
 
 // Upload single image
-router.post('/image', authenticateToken, uploadToS3.single('image'), (req: Request, res: Response) => {
+router.post('/image', authenticate, uploadToS3.single('image'), (req: Request, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
@@ -25,7 +25,7 @@ router.post('/image', authenticateToken, uploadToS3.single('image'), (req: Reque
 });
 
 // Upload multiple images
-router.post('/images', authenticateToken, uploadToS3.array('images', 5), (req: Request, res: Response) => {
+router.post('/images', authenticate, uploadToS3.array('images', 5), (req: Request, res: Response) => {
   try {
     if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
       return res.status(400).json({ error: 'No files uploaded' });
@@ -48,7 +48,7 @@ router.post('/images', authenticateToken, uploadToS3.array('images', 5), (req: R
 });
 
 // Delete image
-router.delete('/image/:key', authenticateToken, async (req: Request, res: Response) => {
+router.delete('/image/:key', authenticate, async (req: Request, res: Response) => {
   try {
     const { key } = req.params;
     
