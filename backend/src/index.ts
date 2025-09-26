@@ -26,6 +26,7 @@ import userRoutes from './routes/user';
 import adminRoutes from './routes/admin';
 import sitemapRoutes from './routes/sitemap';
 import healthRoutes from './routes/health';
+import uploadRoutes from './routes/upload';
 
 // Load and validate environment configuration
 const config = Environment.getConfig();
@@ -121,6 +122,9 @@ app.use('/api/user', userRoutes);
 
 // Admin routes (protected)
 app.use('/api/admin', adminRoutes);
+
+// Upload routes (protected)
+app.use('/api/upload', uploadRoutes);
 
 // SEO routes (sitemap, robots.txt)
 app.use('/', sitemapRoutes);
