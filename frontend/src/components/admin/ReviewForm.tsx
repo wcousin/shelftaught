@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
 import type { Subject, GradeLevel } from '../../types';
+import ImageUpload from '../ImageUpload';
+import { deleteImage } from '../../services/uploadService';
 
 interface ReviewFormProps {
   curriculum?: any | null; // Can be either full Curriculum or partial admin data
@@ -89,6 +91,10 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ curriculum, onSuccess, onCancel
   const [weaknessesText, setWeaknessesText] = useState('');
   const [bestForText, setBestForText] = useState('');
   const [materialsText, setMaterialsText] = useState('');
+  
+  // Image upload states
+  const [currentImageKey, setCurrentImageKey] = useState<string>('');
+  const [uploadError, setUploadError] = useState<string>('');
 
   useEffect(() => {
     fetchCategories();
@@ -222,6 +228,35 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ curriculum, onSuccess, onCancel
     }));
   };
 
+  const handleImageUploadSuccess = (imageUrl: string, key: string) => {
+    // If there was a previous image, delete it
+    if (currentImageKey && currentImageKey !== key) {
+      deleteImage(currentImageKey).catch(console.error);
+    }
+    
+    setFormData(prev => ({ ...prev, imageUrl }));
+    setCurrentImageKey(key);
+    setUploadError('');
+  };
+
+  const handleImageUploadError = (error: string) => {
+    setUploadError(error);
+  };
+
+  const handleRemoveImage = async () => {
+    if (currentImageKey) {
+      try {
+        await deleteImage(currentImageKey);
+      } catch (error) {
+        console.error('Failed to delete image:', error);
+      }
+    }
+    
+    setFormData(prev => ({ ...prev, imageUrl: '' }));
+    setCurrentImageKey('');
+    setUploadError('');
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="bg-white shadow rounded-lg">
@@ -280,37 +315,71 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ curriculum, onSuccess, onCancel
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Image URL
-              </label>
-              <input
-                type="url"
-                value={formData.imageUrl}
-                onChange={(e) => handleInputChange('imageUrl', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          {/* Image Upload Section */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Curriculum Image
+            </label>
+            
+            {formData.imageUrl ? (
+              <div className="space-y-4">
+                <div className="flex items-start space-x-4">
+                  <img
+                    src={formData.imageUrl}
+                    alt="Curriculum"
+                    className="w-32 h-32 object-cover rounded-lg border border-gray-300"
+                  />
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-600 mb-2">Current image:</p>
+                    <p className="text-xs text-gray-500 break-all mb-3">{formData.imageUrl}</p>
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="bg-red-100 text-red-800 px-3 py-1 rounded-md text-sm hover:bg-red-200 transition-colors"
+                    >
+                      Remove Image
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 mb-2">Replace with new image:</p>
+                  <ImageUpload
+                    onUploadSuccess={handleImageUploadSuccess}
+                    onUploadError={handleImageUploadError}
+                    className="border-2 border-dashed border-gray-300 rounded-lg"
+                  />
+                </div>
+              </div>
+            ) : (
+              <ImageUpload
+                onUploadSuccess={handleImageUploadSuccess}
+                onUploadError={handleImageUploadError}
+                className="border-2 border-dashed border-gray-300 rounded-lg"
               />
-            </div>
+            )}
+            
+            {uploadError && (
+              <p className="mt-2 text-sm text-red-600">{uploadError}</p>
+            )}
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Grade Level *
-              </label>
-              <select
-                required
-                value={formData.gradeLevelId}
-                onChange={(e) => handleInputChange('gradeLevelId', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select Grade Level</option>
-                {(gradeLevels || []).map(grade => (
-                  <option key={grade.id} value={grade.id}>
-                    {grade.name} ({grade.ageRange})
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Grade Level *
+            </label>
+            <select
+              required
+              value={formData.gradeLevelId}
+              onChange={(e) => handleInputChange('gradeLevelId', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Select Grade Level</option>
+              {(gradeLevels || []).map(grade => (
+                <option key={grade.id} value={grade.id}>
+                  {grade.name} ({grade.ageRange})
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Subjects */}
