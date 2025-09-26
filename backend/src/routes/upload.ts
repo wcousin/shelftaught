@@ -1,21 +1,14 @@
 import { Router, Request, Response } from 'express';
-import { uploadToS3, deleteFromS3 } from '../services/s3Service';
+import { uploadToS3, deleteFromS3, testS3Connection } from '../services/s3Service';
 import { authenticate } from '../middleware/auth';
-import AWS from 'aws-sdk';
 
 const router = Router();
 
 // Health check endpoint to test AWS S3 connectivity (no auth required)
 router.get('/health', async (req: Request, res: Response) => {
   try {
-    const s3 = new AWS.S3({
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      region: process.env.AWS_REGION,
-    });
-
-    // Test S3 connectivity by listing bucket
-    await s3.headBucket({ Bucket: process.env.AWS_S3_BUCKET! }).promise();
+    // Test S3 connectivity
+    await testS3Connection();
     
     res.json({
       status: 'healthy',

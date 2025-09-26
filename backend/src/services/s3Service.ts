@@ -1,4 +1,4 @@
-import AWS from 'aws-sdk';
+import { S3Client, DeleteObjectCommand, HeadBucketCommand } from '@aws-sdk/client-s3';
 import multer from 'multer';
 import multerS3 from 'multer-s3';
 import { Request } from 'express';
@@ -21,11 +21,13 @@ const validateAWSConfig = () => {
 // Validate configuration on startup
 validateAWSConfig();
 
-// Configure AWS
-const s3 = new AWS.S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+// Configure AWS S3 Client (v3)
+const s3Client = new S3Client({
   region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  },
 });
 
 // File filter for images only
@@ -40,7 +42,7 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilt
 // Configure multer for S3 upload
 export const uploadToS3 = multer({
   storage: multerS3({
-    s3: s3,
+    s3: s3Client,
     bucket: process.env.AWS_S3_BUCKET!,
     acl: 'public-read',
     key: function (req, file, cb) {
@@ -59,24 +61,29 @@ export const uploadToS3 = multer({
 
 // Function to delete file from S3
 export const deleteFromS3 = async (fileKey: string): Promise<void> => {
-  const params = {
+  const command = new DeleteObjectCommand({
     Bucket: process.env.AWS_S3_BUCKET!,
     Key: fileKey,
-  };
+  });
 
   try {
-    await s3.deleteObject(params).promise();
+    await s3Client.send(command);
   } catch (error) {
     console.error('Error deleting file from S3:', error);
     throw error;
   }
 };
 
-// Function to get signed URL for private files (if needed later)
-export const getSignedUrl = (fileKey: string, expires: number = 3600): string => {
-  return s3.getSignedUrl('getObject', {
+// Function to test S3 connectivity
+export const testS3Connection = async (): Promise<void> => {
+  const command = new HeadBucketCommand({
     Bucket: process.env.AWS_S3_BUCKET!,
-    Key: fileKey,
-    Expires: expires,
   });
+
+  try {
+    await s3Client.send(command);
+  } catch (error) {
+    console.error('Error testing S3 connection:', error);
+    throw error;
+  }
 };
