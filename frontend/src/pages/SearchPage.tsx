@@ -105,7 +105,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ onFiltersChange, searchQuery: p
       };
 
       const response = await api.searchCurricula(searchQuery, params);
-      setCurricula(response.data.data?.curricula || []);
+      setCurricula(response.data.data?.results || []);
       setTotalCount(response.data.data?.pagination?.totalCount || 0);
     } catch (err) {
       console.error('Error searching curricula:', err);
