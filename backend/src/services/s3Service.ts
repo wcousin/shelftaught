@@ -3,6 +3,24 @@ import multer from 'multer';
 import multerS3 from 'multer-s3';
 import { Request } from 'express';
 
+// Validate AWS configuration
+const validateAWSConfig = () => {
+  const requiredVars = ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_REGION', 'AWS_S3_BUCKET'];
+  const missing = requiredVars.filter(varName => !process.env[varName]);
+  
+  if (missing.length > 0) {
+    console.error('❌ Missing AWS environment variables:', missing);
+    throw new Error(`Missing AWS environment variables: ${missing.join(', ')}`);
+  }
+  
+  console.log('✅ AWS configuration validated');
+  console.log('🔧 AWS Region:', process.env.AWS_REGION);
+  console.log('🔧 S3 Bucket:', process.env.AWS_S3_BUCKET);
+};
+
+// Validate configuration on startup
+validateAWSConfig();
+
 // Configure AWS
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
